@@ -1,0 +1,202 @@
+id,post_id,topic,llm_substance
+1,63613799,Space & Astronomy,2
+2,51547717,Movies & Film,0
+3,142679634,AI & Tech,2
+4,31323346,Higher Education,2
+5,7792691,Birds & Nature,0
+6,32451377,Higher Education,0
+7,83613739,Pets,2
+8,36394446,Economy & Jobs,0
+9,33622079,Climate & Energy,2
+10,16657441,Gardening & Plants,1
+11,2463073,Economy & Jobs,0
+12,11963581,Books & Reading,1
+13,80115086,Music,1
+14,182266171,Space & Astronomy,0
+15,20645816,Sports,0
+16,32067288,Books & Reading,0
+17,62116330,Transportation & Urbanism,0
+18,146911,Music,0
+19,89586878,Ancient History,1
+20,20333660,Pets,0
+21,197578490,Pets,0
+22,18507586,Fitness & Gym,0
+23,106333754,AI & Tech,1
+24,16340230,Birds & Nature,1
+25,60653395,Space & Astronomy,0
+26,37731139,Gardening & Plants,2
+27,11292679,Climate & Energy,1
+28,2870345,Politics,1
+29,119100005,Gardening & Plants,2
+30,85651238,Music,0
+31,25350647,Pets,2
+32,135442727,Gardening & Plants,0
+33,26849189,Food & Cooking,0
+34,80178830,Food & Cooking,0
+35,11697874,Food & Cooking,1
+36,4971076,Video Games,0
+37,64533574,Transportation & Urbanism,1
+38,62797184,Space & Astronomy,2
+39,53825819,Fitness & Gym,2
+40,35485191,Higher Education,1
+41,26040858,Photography,2
+42,8880166,Music,2
+43,26038791,Photography,0
+44,49513899,Video Games,1
+45,14800678,Photography,1
+46,31429768,Climate & Energy,0
+47,82930313,Economy & Jobs,0
+48,25786697,Photography,1
+49,62005928,Movies & Film,1
+50,704727,Higher Education,0
+51,10698778,Ancient History,0
+52,123384086,Photography,2
+53,3786358,Economy & Jobs,1
+54,137608,Politics,2
+55,24854303,Transportation & Urbanism,2
+56,83828244,Video Games,2
+57,1883735,Fitness & Gym,1
+58,52585193,Birds & Nature,2
+59,6447069,Climate & Energy,0
+60,35052056,AI & Tech,1
+61,26045540,Photography,2
+62,53104791,Transportation & Urbanism,2
+63,38908422,Gardening & Plants,1
+64,45884469,Economy & Jobs,2
+65,26041289,Photography,0
+66,12316975,Transportation & Urbanism,0
+67,92571127,Economy & Jobs,1
+68,27973297,Music,2
+69,121017838,Pets,1
+70,32067044,Books & Reading,1
+71,60654505,Space & Astronomy,0
+72,119255345,Sports,1
+73,21553605,Higher Education,0
+74,3715243,Food & Cooking,2
+75,89099261,Politics,2
+76,52241372,Fitness & Gym,1
+77,26569338,Sports,2
+78,8907336,Birds & Nature,2
+79,16707125,Higher Education,1
+80,58156050,Movies & Film,1
+81,25248617,Sports,0
+82,1465776,Books & Reading,2
+83,2662008,AI & Tech,2
+84,30901635,Politics,0
+85,93004,Books & Reading,0
+86,93394,Climate & Energy,0
+87,4368430,Space & Astronomy,1
+88,24954295,Movies & Film,2
+89,15654322,Ancient History,2
+90,3034186,Music,0
+91,10028783,Economy & Jobs,1
+92,32765629,Politics,1
+93,885146,Transportation & Urbanism,2
+94,1187060,Transportation & Urbanism,0
+95,25035984,Books & Reading,0
+96,52674506,Video Games,1
+97,195299602,Photography,1
+98,4987933,Video Games,2
+99,21296,Birds & Nature,0
+100,51547843,Movies & Film,0
+101,8431426,Higher Education,1
+102,86257812,Ancient History,2
+103,34092842,Sports,2
+104,62712230,Space & Astronomy,0
+105,900197,Higher Education,2
+106,135689422,Food & Cooking,2
+107,37919280,Space & Astronomy,1
+108,208450526,AI & Tech,0
+109,7795242,AI & Tech,1
+110,47414048,Climate & Energy,2
+111,16165211,Books & Reading,0
+112,97765339,Books & Reading,0
+113,39257228,Higher Education,2
+114,100340254,Gardening & Plants,0
+115,35392059,Music,0
+116,28460195,Movies & Film,1
+117,78795659,Politics,1
+118,138557653,Photography,0
+119,100624145,Fitness & Gym,2
+120,69117338,Space & Astronomy,0
+121,5654161,Video Games,0
+122,65289579,AI & Tech,2
+123,108893913,Economy & Jobs,2
+124,1670262,Books & Reading,0
+125,603706,Economy & Jobs,2
+126,13827740,Politics,0
+127,6588516,Transportation & Urbanism,1
+128,11647542,Movies & Film,2
+129,5087211,Space & Astronomy,2
+130,96254363,Sports,2
+131,13980472,Books & Reading,1
+132,32074386,Ancient History,1
+133,47933985,Video Games,1
+134,608344,Fitness & Gym,2
+135,47209045,Books & Reading,0
+136,10551537,Space & Astronomy,0
+137,6202627,Ancient History,1
+138,28336817,Fitness & Gym,0
+139,5456865,Economy & Jobs,2
+140,18020520,Politics,0
+141,107260256,AI & Tech,0
+142,18512063,Ancient History,0
+143,14173342,Transportation & Urbanism,0
+144,106327560,Birds & Nature,1
+145,25358253,Politics,1
+146,4908530,AI & Tech,0
+147,30532985,Climate & Energy,1
+148,30211122,Video Games,2
+149,48721281,Music,1
+150,29260895,Pets,1
+151,157530079,Pets,2
+152,42536254,Food & Cooking,1
+153,152299991,Pets,0
+154,3260620,Climate & Energy,2
+155,24807796,Fitness & Gym,1
+156,11208589,Higher Education,2
+157,1823055,Movies & Film,2
+158,1961972,Books & Reading,0
+159,58759178,Books & Reading,2
+160,59765882,Ancient History,0
+161,38004731,Gardening & Plants,0
+162,5542066,Music,2
+163,7641988,Space & Astronomy,1
+164,16328000,Birds & Nature,1
+165,133655608,Video Games,2
+166,121124424,Birds & Nature,2
+167,19925302,Birds & Nature,0
+168,69291659,Gardening & Plants,1
+169,196554014,Sports,1
+170,80744833,Music,2
+171,189162269,Fitness & Gym,1
+172,131542316,Music,1
+173,46989189,Pets,1
+174,40383507,Climate & Energy,2
+175,99310105,AI & Tech,2
+176,65974572,Climate & Energy,2
+177,84464188,Books & Reading,2
+178,3308093,Video Games,0
+179,10415103,Books & Reading,1
+180,63414131,Birds & Nature,1
+181,1525382,Books & Reading,2
+182,75543938,Movies & Film,0
+183,20597803,Birds & Nature,1
+184,46726907,Gardening & Plants,1
+185,22797908,Fitness & Gym,0
+186,113414696,Food & Cooking,2
+187,38453409,Ancient History,2
+188,18750841,Food & Cooking,1
+189,114969041,Ancient History,1
+190,28741993,Food & Cooking,0
+191,38028926,Transportation & Urbanism,1
+192,84538677,Music,1
+193,90003804,Gardening & Plants,2
+194,30532380,Climate & Energy,1
+195,11281742,Sports,0
+196,87608999,Politics,2
+197,85570159,Sports,1
+198,12508439,Food & Cooking,1
+199,12614234,Sports,1
+200,4752654,Economy & Jobs,2
+201,108981711,AI & Tech,2

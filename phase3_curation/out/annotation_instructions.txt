@@ -1,0 +1,64 @@
+HOW TO RATE THESE POSTS
+=======================
+
+WHAT WE'RE DOING
+We are checking the quality of a collection of social-media posts. We want to know,
+for each post: does it actually say something, or is it empty? Please read each post
+and give it a rating of 0, 1, or 2 using the guide below. There are 200 posts.
+
+You are rating ONE thing only: how much real content the post has. You are NOT
+rating whether you agree with it, whether it's well written, whether it's about an
+interesting topic, or whether you personally like it. A post you disagree with can
+still be a 2. A post about a boring subject can still be a 2.
+
+
+THE THREE RATINGS
+
+0  =  EMPTY
+      The post doesn't really say anything. It's just a mood, a reaction, a greeting,
+      a caption, or hype. If you removed it, no one would have missed any information
+      or idea.
+      Examples:
+        - "feeling so tired today, send coffee"
+        - "this show is SO good omg I can't"
+        - "new haircut, what do we think??"
+        - "Day 4 of posting until they notice me"
+
+1  =  SOMETHING THERE
+      The post makes a real point or shares a real bit of experience, but it's
+      ordinary or light. A specific observation, a personal story, a plain opinion, a
+      simple tip. You learn or get something small from it, even if it's not deep.
+      Examples:
+        - "Took the long way home past the old mill. They finally repainted it blue."
+        - "Aldi's frozen croissants are genuinely better than the bakery ones near me."
+        - "I think the new season is weaker because they split the main cast up too early."
+
+2  =  STRONG
+      The post gives you something worth reading: a real insight, a clear argument
+      with a reason behind it, a useful piece of knowledge, or a vivid, well-made
+      observation. After reading it you've actually learned or thought about something.
+      Examples:
+        - "The reason these batteries degrade fast isn't the cold, it's the charging
+           cycles you do while they're still cold. Warm them first and they last years."
+        - "Calling it a 'labor shortage' hides the real story: wages stopped tracking
+           productivity in the 1970s, so the jobs exist, just not at livable pay."
+        - "People miss that the 1947 rule change is why the position exists at all -
+           before it, this kind of play was simply illegal."
+
+
+HOW TO DECIDE WHEN YOU'RE UNSURE
+- Between 0 and 1: if the post has ANY real, specific content (a fact, a story, a
+  concrete opinion), give it a 1. Save 0 for posts that are purely mood, hype, or a
+  bare caption.
+- Between 1 and 2: give a 2 only if you genuinely got an idea, an argument, or a
+  useful piece of knowledge. If it's just a nice ordinary observation, it's a 1.
+- Don't overthink it. Go with your first honest read. Most posts will be 1s; that's
+  expected. Spend no more than a few seconds per post.
+
+
+HOW TO FILL IT IN
+Open annotation_posts.csv. For each row, read the "text" column and type 0, 1, or 2
+in the "rating" column. Do not change the "id" or "text" columns. Save the file when
+you're done and send it back. Please rate every row.
+
+Thank you!
