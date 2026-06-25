@@ -187,10 +187,17 @@ const AXIS_NAMES   = {axis_names_json};
 const CONFIRM_LIFT = {SAE2_CONFIRM};
 const PARTIAL_LIFT = {SAE2_PARTIAL};
 
+const CAT_ORDER = {{"confirms_axis": 0, "partial_overlap": 1, "novel_candidate": 2, "dead": 3}};
+
 function buildSidebar(items) {{
+  const sorted = [...items].sort((a, b) => {{
+    const catDiff = (CAT_ORDER[a.category] ?? 9) - (CAT_ORDER[b.category] ?? 9);
+    if (catDiff !== 0) return catDiff;
+    return Math.abs(b.best_lift) - Math.abs(a.best_lift);
+  }});
   const list = document.getElementById('feature-list');
   list.innerHTML = '';
-  items.forEach((feat, i) => {{
+  sorted.forEach((feat, i) => {{
     const item = document.createElement('div');
     item.className = 'feat-item';
     item.dataset.fidx = feat.f;
