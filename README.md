@@ -1,5 +1,37 @@
 # Style-SAE & Rewrite-Audit — design and build notes
 
+## Pipeline Overview
+
+**Input → Output in 6 steps:**
+
+```
+phase3_curation/out/curated_corpus.parquet   (9,500 posts, 19 topics)
+        │
+        ▼
+[1] dataset.py          slice BGE-M3 embeddings by row_idx
+        │                → data/sae2/dataset.parquet  +  bge.npy
+        ▼
+[2] extract_qwen.py     run Qwen2.5-7B on Colab, extract hidden states at layers 14/18/22
+        │                → data/sae2/qwen/qwen_L{14,18,22}.npy
+        ▼
+[3] representations.py  build 8 variants: {bge, qwen@layer} × {raw, kNN-residual}
+        │                → data/sae2/variants/*.npy   (kNN removes ~80% topic signal)
+        ▼
+[4] label_subset.py     score 2,000 stratified posts on 9 style axes via Claude Haiku
+        │                → data/sae2/axis_labels.parquet
+        ▼
+[5] layer_sweep.py      train one SAE per Qwen layer, score axis alignment, pick winner
+        │                → data/sae2/variants/qwen{L}_knn/  +  data/sae2/report.md
+        │                  Result: L22 best (all 9 axes confirmed)
+        ▼
+[6] correlate.py        per-feature Pearson r + axis lift against labels → interpret.py
+```
+
+**9 style axes** (single source of truth: `config/axes.py`):
+`reading_level · concreteness · narrativity · hedging · tone · warmth · self_disclosure · casualness · humor`
+
+---
+
 This is the working brief for the next chunk of the delivery project. It's written
 to be read by whoever implements it *and* by the rest of us, so it spends as much
 time on **why** as on **what**. Read it once top to bottom before writing code —
