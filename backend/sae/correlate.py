@@ -32,9 +32,22 @@ import pandas as pd
 
 
 def _post_axis_matrix(df: pd.DataFrame, axis_names: list[str]) -> np.ndarray:
-    """Return an (N, A) matrix of axis scores. NaN where missing."""
+    """Return an (N, A) matrix of axis scores. NaN where missing.
+
+    Handles two formats:
+    - Direct float columns (axis_labels.parquet): one column per axis name
+    - Nested axes_json column: JSON string per row with {"axis": {"score": float}}
+    """
     n = len(df)
     arr = np.full((n, len(axis_names)), np.nan, dtype=np.float64)
+
+    # Fast path: axis_labels.parquet has direct float columns
+    if all(ax in df.columns for ax in axis_names):
+        for col_i, ax in enumerate(axis_names):
+            arr[:, col_i] = df[ax].to_numpy(dtype=np.float64)
+        return arr
+
+    # Slow path: axes_json column (legacy format)
     for row_i, axes_json in enumerate(df["axes_json"].values):
         if not axes_json or pd.isna(axes_json):
             continue
@@ -135,4 +148,76 @@ def summarize_categories(corr_records: list[dict[str, Any]]) -> dict[str, int]:
         c = r["category"]
         out[c] = out.get(c, 0) + 1
     return out
+
+
+# ── Driver ─────────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    import json as _json
+    import sys
+    from pathlib import Path
+
+    APP_ROOT = Path(__file__).resolve().parents[2]
+    sys.path.insert(0, str(APP_ROOT))
+
+    from config.axes import ALL_AXIS_NAMES
+    from config.settings import (
+        SAE2_DATASET_FILE, SAE2_LABELS_FILE, SAE2_VARIANTS_DIR,
+        SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY,
+    )
+
+    VARIANT = "qwen22_knn"
+    variant_dir = APP_ROOT / SAE2_VARIANTS_DIR / VARIANT
+
+    # ── Load activations ───────────────────────────────────────────
+    print(f"Loading feature activations from {VARIANT}…")
+    activations_full = np.load(variant_dir / "feature_activations.npy")  # (9500, 128)
+    print(f"  shape: {activations_full.shape}")
+
+    # ── Load and align labels ──────────────────────────────────────
+    print("Aligning axis labels…")
+    dataset = pd.read_parquet(APP_ROOT / SAE2_DATASET_FILE)
+    labels = pd.read_parquet(APP_ROOT / SAE2_LABELS_FILE)
+
+    post_id_to_idx = {str(pid): i for i, pid in enumerate(dataset["post_id"].astype(str))}
+    row_indices = np.array(
+        [post_id_to_idx[str(pid)] for pid in labels["post_id"].astype(str)],
+        dtype=np.int64,
+    )
+    activations = activations_full[row_indices]  # (1997, 128)
+    print(f"  {len(labels)} labeled posts aligned.")
+
+    # ── Correlate ──────────────────────────────────────────────────
+    print("Computing r and lift for all 128 × 9 pairs…")
+    records = correlate_features_with_axes(
+        activations, labels, ALL_AXIS_NAMES,
+        confirm_lift=SAE2_CONFIRM,
+        partial_lift=SAE2_PARTIAL,
+        dead_density=SAE2_DEAD_DENSITY,
+    )
+
+    # ── Save ───────────────────────────────────────────────────────
+    out_path = variant_dir / "correlations.json"
+    out_path.write_text(_json.dumps(records, indent=2))
+    print(f"\nSaved {len(records)} feature records → {out_path}")
+
+    # ── Summary table ──────────────────────────────────────────────
+    cats = summarize_categories(records)
+    print(f"\nCategory summary:")
+    for cat, count in sorted(cats.items(), key=lambda x: -x[1]):
+        print(f"  {cat:20s}: {count}")
+
+    print(f"\nTop features by score:")
+    ranked = sorted(records, key=lambda r: max(abs(r["best_r"]), abs(r["best_lift"])), reverse=True)
+    print(f"  {'feature':>7}  {'best_axis':20s}  {'score':>6}  {'density':>7}  category")
+    print(f"  {'-------':>7}  {'--------':20s}  {'-----':>6}  {'-------':>7}  --------")
+    for rec in ranked[:20]:
+        score = max(abs(rec["best_r"]), abs(rec["best_lift"]))
+        print(f"  {rec['feature']:>7}  {rec['best_axis']:20s}  {score:>6.3f}  {rec['density']:>7.3f}  {rec['category']}")
+
+    print(f"\nPer-axis best feature:")
+    for ax in ALL_AXIS_NAMES:
+        best = max(records, key=lambda r: abs(r["correlations"].get(ax, 0)) if r["category"] != "dead" else 0)
+        score = max(abs(best["correlations"][ax]), abs(best["lifts"][ax]))
+        print(f"  {ax:20s}: feature {best['feature']:>3}  score={score:.3f}  density={best['density']:.3f}")
 
