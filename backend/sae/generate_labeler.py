@@ -87,17 +87,20 @@ def build_features() -> list[dict]:
                 "axes":       axis_scores.get(pid, {}),
             })
 
-        lifts = corr.get("lifts", {ax: 0.0 for ax in ALL_AXIS_NAMES})
-        # ensure all 9 axes present
+        lifts = corr.get("lifts", {})
+        rs    = corr.get("correlations", {})
         for ax in ALL_AXIS_NAMES:
             lifts.setdefault(ax, 0.0)
+            rs.setdefault(ax, 0.0)
 
         features.append({
             "f":         f_idx,
             "density":   corr.get("density", 0.0),
             "category":  corr.get("category", "novel_candidate"),
             "lifts":     {ax: round(lifts.get(ax, 0.0), 4) for ax in ALL_AXIS_NAMES},
+            "rs":        {ax: round(rs.get(ax, 0.0), 4)    for ax in ALL_AXIS_NAMES},
             "best_axis": corr.get("best_axis"),
+            "best_r":    round(corr.get("best_r", 0.0), 4),
             "best_lift": round(corr.get("best_lift", 0.0), 4),
             "examples":  examples,
         })
@@ -135,11 +138,14 @@ def render_html(features: list[dict]) -> str:
   #detail .meta {{ font-size: 13px; color: #aaa; margin-bottom: 20px; }}
   .section-title {{ font-size: 13px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; margin: 24px 0 10px; }}
 
-  .lift-row {{ display: flex; align-items: center; margin-bottom: 7px; }}
-  .lift-label {{ width: 160px; font-size: 12px; color: #ccc; }}
-  .lift-bar-bg {{ flex: 1; height: 18px; background: #2a2d3e; border-radius: 3px; position: relative; }}
-  .lift-bar {{ height: 100%; border-radius: 3px; transition: width 0.3s; }}
-  .lift-val {{ width: 52px; text-align: right; font-size: 12px; color: #ccc; padding-left: 8px; }}
+  .axis-row {{ margin-bottom: 10px; }}
+  .axis-row-label {{ font-size: 12px; color: #ccc; margin-bottom: 3px; }}
+  .axis-row-label.best {{ color: #fff; font-weight: 700; }}
+  .metric-row {{ display: flex; align-items: center; margin-bottom: 3px; }}
+  .metric-tag {{ width: 36px; font-size: 10px; color: #777; text-align: right; padding-right: 8px; flex-shrink: 0; }}
+  .bar-bg {{ flex: 1; height: 14px; background: #2a2d3e; border-radius: 3px; }}
+  .bar-fill {{ height: 100%; border-radius: 3px; transition: width 0.3s; }}
+  .bar-val {{ width: 58px; text-align: right; font-size: 11px; color: #ccc; padding-left: 8px; }}
 
   .example-card {{ background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 6px; padding: 14px 16px; margin-bottom: 12px; }}
   .example-meta {{ font-size: 11px; color: #888; margin-bottom: 8px; }}
@@ -216,21 +222,36 @@ function showFeature(fIdx) {{
   const feat = FEATURES.find(f => f.f === fIdx);
   if (!feat) return;
   const catColor = CAT_COLORS[feat.category] || '#555';
-  const maxLift  = Math.max(...Object.values(feat.lifts).map(Math.abs), 0.01);
+
+  const maxLift = Math.max(...Object.values(feat.lifts).map(Math.abs), 0.01);
+  const maxR    = Math.max(...Object.values(feat.rs).map(Math.abs), 0.01);
+  const absMax  = Math.max(maxLift, maxR);
 
   let liftHtml = '';
   AXIS_NAMES.forEach(ax => {{
     const lift   = feat.lifts[ax] || 0;
-    const pct    = Math.abs(lift) / maxLift * 100;
+    const r      = feat.rs[ax]    || 0;
     const color  = AXIS_COLORS[ax] || '#6c8ebf';
     const isBest = ax === feat.best_axis;
+    const liftPct = Math.abs(lift) / absMax * 100;
+    const rPct    = Math.abs(r)    / absMax * 100;
     liftHtml += `
-      <div class="lift-row">
-        <div class="lift-label" style="${{isBest ? 'color:#fff;font-weight:700' : ''}}">${{ax.replace(/_/g,' ')}}</div>
-        <div class="lift-bar-bg">
-          <div class="lift-bar" style="width:${{pct}}%;background:${{color}};opacity:${{isBest ? 1 : 0.5}}"></div>
+      <div class="axis-row">
+        <div class="axis-row-label ${{isBest ? 'best' : ''}}">${{ax.replace(/_/g,' ')}}</div>
+        <div class="metric-row">
+          <div class="metric-tag">lift</div>
+          <div class="bar-bg">
+            <div class="bar-fill" style="width:${{liftPct}}%;background:${{color}};opacity:${{isBest ? 1 : 0.55}}"></div>
+          </div>
+          <div class="bar-val">${{lift >= 0 ? '+' : ''}}${{lift.toFixed(3)}}</div>
         </div>
-        <div class="lift-val">${{lift >= 0 ? '+' : ''}}${{lift.toFixed(3)}}</div>
+        <div class="metric-row">
+          <div class="metric-tag">r</div>
+          <div class="bar-bg">
+            <div class="bar-fill" style="width:${{rPct}}%;background:${{color}};opacity:${{isBest ? 0.65 : 0.3}}"></div>
+          </div>
+          <div class="bar-val">${{r >= 0 ? '+' : ''}}${{r.toFixed(3)}}</div>
+        </div>
       </div>`;
   }});
 
@@ -261,6 +282,7 @@ function showFeature(fIdx) {{
       <span class="cat-badge" style="background:${{catColor}}22;color:${{catColor}};font-size:12px">${{feat.category}}</span>
       &nbsp; best axis: <strong>${{feat.best_axis || '—'}}</strong>
       &nbsp; lift: <strong>${{feat.best_lift.toFixed(4)}}</strong>
+      &nbsp; r: <strong>${{feat.best_r.toFixed(4)}}</strong>
       &nbsp; density: <strong>${{feat.density.toFixed(4)}}</strong>
     </div>
     <div class="section-title">Lift across 9 axes</div>
