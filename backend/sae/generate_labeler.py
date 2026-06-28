@@ -1,14 +1,8 @@
 """
-Generate the SAE feature labeler HTML for the SAE2 / qwen22_knn variant.
+Generate the SAE feature labeler HTML for all 7 qwen_knn variants.
 
-Adapted from Jiahao-Jerry/Style_SAE index.html:
-  - Same sidebar + lift-bar UI
-  - Examples changed from original/rewrite pairs to top activating posts
-    (no synthetic pairs yet; those come from pairs.py later)
-  - Axes updated to the 9 SAE2 axes
-  - Thresholds updated to SAE2_CONFIRM / SAE2_PARTIAL
-
-Output: data/sae2/labeler.html  (open directly in a browser, no server needed)
+Outputs docs/index.html (GitHub Pages) with a layer-switcher dropdown so
+all variants can be explored in one page without a server.
 
 Run: python backend/sae/generate_labeler.py
 """
@@ -28,12 +22,12 @@ sys.path.insert(0, str(APP_ROOT))
 from config.axes import ALL_AXIS_NAMES
 from config.settings import (
     SAE2_VARIANTS_DIR, SAE2_DATASET_FILE, SAE2_LABELS_FILE,
-    SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY,
+    SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY, SAE2_QWEN_LAYERS,
 )
 
-VARIANT      = "qwen22_knn"
-TOP_K        = 10
-OUT_FILE     = APP_ROOT / "data/sae2/labeler.html"
+VARIANTS = [f"qwen{l}_knn" for l in SAE2_QWEN_LAYERS]
+TOP_K    = 10
+OUT_FILE = APP_ROOT / "docs" / "index.html"
 
 AXIS_COLORS = {
     "reading_level":    "#6c8ebf",
@@ -48,16 +42,12 @@ AXIS_COLORS = {
 }
 
 
-def build_features() -> list[dict]:
-    variant_dir = APP_ROOT / SAE2_VARIANTS_DIR / VARIANT
+def build_features(variant: str, dataset: pd.DataFrame, labels: pd.DataFrame) -> list[dict]:
+    variant_dir = APP_ROOT / SAE2_VARIANTS_DIR / variant
 
-    activations = np.load(variant_dir / "feature_activations.npy")  # (9500, 128)
+    activations = np.load(variant_dir / "feature_activations.npy")
     corr_records = json.loads((variant_dir / "correlations.json").read_text())
 
-    dataset = pd.read_parquet(APP_ROOT / SAE2_DATASET_FILE)
-    labels  = pd.read_parquet(APP_ROOT / SAE2_LABELS_FILE)
-
-    # Build post_id → axis scores map (only for labeled posts)
     axis_scores: dict[str, dict] = {}
     for row in labels.itertuples():
         scores = {ax: round(float(getattr(row, ax)), 3)
@@ -71,7 +61,6 @@ def build_features() -> list[dict]:
         col  = activations[:, f_idx]
         corr = corr_by_feat.get(f_idx, {})
 
-        # Top-K posts by activation
         top_idx = np.argsort(-col)[:TOP_K]
         examples = []
         for i in top_idx:
@@ -108,16 +97,18 @@ def build_features() -> list[dict]:
     return features
 
 
-def render_html(features: list[dict]) -> str:
-    features_json = json.dumps(features, ensure_ascii=False)
-    axis_colors_json = json.dumps(AXIS_COLORS)
-    axis_names_json  = json.dumps(ALL_AXIS_NAMES)
+def render_html(all_features: dict[str, list[dict]]) -> str:
+    all_features_json = json.dumps(all_features, ensure_ascii=False)
+    axis_colors_json  = json.dumps(AXIS_COLORS)
+    axis_names_json   = json.dumps(ALL_AXIS_NAMES)
+    variants_json     = json.dumps(VARIANTS)
+    default_variant   = f"qwen{SAE2_QWEN_LAYERS[-2]}_knn"  # best layer (24)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SAE Feature Labeler — qwen22_knn</title>
+<title>SAE Feature Labeler</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ background: #0f1117; color: #e8eaf0; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }}
@@ -156,17 +147,20 @@ def render_html(features: list[dict]) -> str:
   .axis-chip.high {{ color: #5cb85c; }}
   .axis-chip.low  {{ color: #e6a817; }}
 
-  #filter-bar {{ padding: 8px 12px; border-bottom: 1px solid #2a2d3e; }}
+  #filter-bar {{ padding: 8px 12px; border-bottom: 1px solid #2a2d3e; display: flex; flex-direction: column; gap: 6px; }}
   #filter-bar select {{ background: #2a2d3e; color: #e8eaf0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; width: 100%; }}
+  #layer-select {{ font-weight: 700; color: #6c8ebf !important; }}
 </style>
 </head>
 <body>
 <div id="sidebar">
   <div id="sidebar-header">
     <strong>SAE Feature Labeler</strong>
-    qwen22_knn · 128 features
+    <span id="variant-label">qwen24_knn · 128 features</span>
   </div>
   <div id="filter-bar">
+    <select id="layer-select" onchange="switchLayer(this.value)">
+    </select>
     <select id="cat-filter" onchange="applyFilter()">
       <option value="all">All categories</option>
       <option value="confirms_axis">✓ confirms_axis</option>
@@ -180,14 +174,37 @@ def render_html(features: list[dict]) -> str:
 <div id="detail"><p style="color:#555;margin-top:40px;text-align:center">Select a feature →</p></div>
 
 <script>
-const FEATURES     = {features_json};
-const AXIS_COLORS  = {axis_colors_json};
-const CAT_COLORS   = {{"confirms_axis":"#5cb85c","partial_overlap":"#e6a817","novel_candidate":"#6c8ebf","dead":"#555"}};
-const AXIS_NAMES   = {axis_names_json};
-const CONFIRM_LIFT = {SAE2_CONFIRM};
-const PARTIAL_LIFT = {SAE2_PARTIAL};
+const ALL_FEATURES  = {all_features_json};
+const AXIS_COLORS   = {axis_colors_json};
+const CAT_COLORS    = {{"confirms_axis":"#5cb85c","partial_overlap":"#e6a817","novel_candidate":"#6c8ebf","dead":"#555"}};
+const AXIS_NAMES    = {axis_names_json};
+const VARIANTS      = {variants_json};
+const CONFIRM_LIFT  = {SAE2_CONFIRM};
+const PARTIAL_LIFT  = {SAE2_PARTIAL};
+const CAT_ORDER     = {{"confirms_axis": 0, "partial_overlap": 1, "novel_candidate": 2, "dead": 3}};
 
-const CAT_ORDER = {{"confirms_axis": 0, "partial_overlap": 1, "novel_candidate": 2, "dead": 3}};
+let FEATURES = [];
+let currentVariant = '{default_variant}';
+
+// Populate layer dropdown
+const layerSel = document.getElementById('layer-select');
+VARIANTS.forEach(v => {{
+  const opt = document.createElement('option');
+  opt.value = v;
+  opt.textContent = v;
+  if (v === currentVariant) opt.selected = true;
+  layerSel.appendChild(opt);
+}});
+
+function switchLayer(variant) {{
+  currentVariant = variant;
+  FEATURES = ALL_FEATURES[variant] || [];
+  const n = FEATURES.length;
+  document.getElementById('variant-label').textContent = variant + ' · ' + n + ' features';
+  document.getElementById('cat-filter').value = 'all';
+  document.getElementById('detail').innerHTML = '<p style="color:#555;margin-top:40px;text-align:center">Select a feature →</p>';
+  applyFilter();
+}}
 
 function buildSidebar(items) {{
   const sorted = [...items].sort((a, b) => {{
@@ -197,7 +214,7 @@ function buildSidebar(items) {{
   }});
   const list = document.getElementById('feature-list');
   list.innerHTML = '';
-  sorted.forEach((feat, i) => {{
+  sorted.forEach(feat => {{
     const item = document.createElement('div');
     item.className = 'feat-item';
     item.dataset.fidx = feat.f;
@@ -205,10 +222,7 @@ function buildSidebar(items) {{
     const axLabel  = feat.best_axis ? feat.best_axis.replace(/_/g,' ') : '—';
     const sym      = feat.category === 'confirms_axis' ? '✓' : feat.category === 'partial_overlap' ? '~' : feat.category === 'dead' ? '✗' : '?';
     item.innerHTML = `
-      <div class="feat-title">
-        F${{feat.f}}
-        <span class="cat-badge" style="background:${{catColor}}22;color:${{catColor}}">${{sym}}</span>
-      </div>
+      <div class="feat-title">F${{feat.f}}<span class="cat-badge" style="background:${{catColor}}22;color:${{catColor}}">${{sym}}</span></div>
       <div class="feat-sub">${{axLabel}} · lift=${{feat.best_lift.toFixed(3)}} · ρ=${{feat.density.toFixed(3)}}</div>`;
     item.addEventListener('click', () => showFeature(feat.f));
     list.appendChild(item);
@@ -229,10 +243,9 @@ function showFeature(fIdx) {{
   const feat = FEATURES.find(f => f.f === fIdx);
   if (!feat) return;
   const catColor = CAT_COLORS[feat.category] || '#555';
-
-  const maxLift = Math.max(...Object.values(feat.lifts).map(Math.abs), 0.01);
-  const maxR    = Math.max(...Object.values(feat.rs).map(Math.abs), 0.01);
-  const absMax  = Math.max(maxLift, maxR);
+  const maxLift  = Math.max(...Object.values(feat.lifts).map(Math.abs), 0.01);
+  const maxR     = Math.max(...Object.values(feat.rs).map(Math.abs), 0.01);
+  const absMax   = Math.max(maxLift, maxR);
 
   let liftHtml = '';
   AXIS_NAMES.forEach(ax => {{
@@ -240,24 +253,18 @@ function showFeature(fIdx) {{
     const r      = feat.rs[ax]    || 0;
     const color  = AXIS_COLORS[ax] || '#6c8ebf';
     const isBest = ax === feat.best_axis;
-    const liftPct = Math.abs(lift) / absMax * 100;
-    const rPct    = Math.abs(r)    / absMax * 100;
     liftHtml += `
       <div class="axis-row">
         <div class="axis-row-label ${{isBest ? 'best' : ''}}">${{ax.replace(/_/g,' ')}}</div>
         <div class="metric-row">
           <div class="metric-tag">lift</div>
-          <div class="bar-bg">
-            <div class="bar-fill" style="width:${{liftPct}}%;background:${{color}};opacity:${{isBest ? 1 : 0.55}}"></div>
-          </div>
-          <div class="bar-val">${{lift >= 0 ? '+' : ''}}${{lift.toFixed(3)}}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(lift)/absMax*100}}%;background:${{color}};opacity:${{isBest?1:0.55}}"></div></div>
+          <div class="bar-val">${{lift>=0?'+':''}}${{lift.toFixed(3)}}</div>
         </div>
         <div class="metric-row">
           <div class="metric-tag">r</div>
-          <div class="bar-bg">
-            <div class="bar-fill" style="width:${{rPct}}%;background:${{color}};opacity:${{isBest ? 0.65 : 0.3}}"></div>
-          </div>
-          <div class="bar-val">${{r >= 0 ? '+' : ''}}${{r.toFixed(3)}}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(r)/absMax*100}}%;background:${{color}};opacity:${{isBest?0.65:0.3}}"></div></div>
+          <div class="bar-val">${{r>=0?'+':''}}${{r.toFixed(3)}}</div>
         </div>
       </div>`;
   }});
@@ -273,10 +280,7 @@ function showFeature(fIdx) {{
       }}).join('');
       exHtml += `
         <div class="example-card">
-          <div class="example-meta">
-            post ${{ex.pid}} &nbsp;·&nbsp; ${{ex.topic}} &nbsp;·&nbsp;
-            activation: <span class="activation-badge">${{ex.activation.toFixed(4)}}</span>
-          </div>
+          <div class="example-meta">post ${{ex.pid}} &nbsp;·&nbsp; ${{ex.topic}} &nbsp;·&nbsp; activation: <span class="activation-badge">${{ex.activation.toFixed(4)}}</span></div>
           <div class="text-block">${{escHtml(ex.text)}}</div>
           ${{axesHtml ? `<div class="axes-row">${{axesHtml}}</div>` : ''}}
         </div>`;
@@ -299,31 +303,35 @@ function showFeature(fIdx) {{
 }}
 
 function escHtml(s) {{
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }}
 
-buildSidebar(FEATURES);
-if (FEATURES.length > 0) showFeature(FEATURES[0].f);
+switchLayer(currentVariant);
 </script>
 </body>
 </html>"""
 
 
 if __name__ == "__main__":
-    print("Building feature data…")
-    features = build_features()
-    confirmed = sum(1 for f in features if f["category"] == "confirms_axis")
-    partial   = sum(1 for f in features if f["category"] == "partial_overlap")
-    novel     = sum(1 for f in features if f["category"] == "novel_candidate")
-    dead      = sum(1 for f in features if f["category"] == "dead")
-    print(f"  {len(features)} features: {confirmed} confirmed, {partial} partial, {novel} novel, {dead} dead")
+    print("Loading dataset and labels…")
+    dataset = pd.read_parquet(APP_ROOT / SAE2_DATASET_FILE)
+    labels  = pd.read_parquet(APP_ROOT / SAE2_LABELS_FILE)
+    print(f"  {len(dataset)} posts, {len(labels)} labeled")
+
+    all_features: dict[str, list[dict]] = {}
+    for variant in VARIANTS:
+        print(f"Building {variant}…")
+        feats = build_features(variant, dataset, labels)
+        confirmed = sum(1 for f in feats if f["category"] == "confirms_axis")
+        partial   = sum(1 for f in feats if f["category"] == "partial_overlap")
+        novel     = sum(1 for f in feats if f["category"] == "novel_candidate")
+        dead      = sum(1 for f in feats if f["category"] == "dead")
+        print(f"  {len(feats)} features: {confirmed} confirmed, {partial} partial, {novel} novel, {dead} dead")
+        all_features[variant] = feats
 
     print("Rendering HTML…")
-    html = render_html(features)
+    html = render_html(all_features)
 
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(html, encoding="utf-8")
     print(f"Saved → {OUT_FILE}")
-    print(f"Open in browser: file://{OUT_FILE}")
