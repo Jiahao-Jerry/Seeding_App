@@ -160,6 +160,10 @@ def sweep() -> dict:
         row += " | ".join(f"{per_axis_all[l][ax]:.3f}" for l in SAE2_QWEN_LAYERS)
         row += " |\n"
         lines.append(row)
+    mean_row = "| **Mean** | "
+    mean_row += " | ".join(f"**{scores[l]:.4f}**" for l in SAE2_QWEN_LAYERS)
+    mean_row += " |\n"
+    lines.append(mean_row)
 
     lines.append(f"\n*Confirm threshold: ≥{SAE2_CONFIRM}, Partial: ≥{SAE2_PARTIAL}*\n")
 
