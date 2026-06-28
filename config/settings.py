@@ -122,7 +122,7 @@ SAE2_REPORT_FILE = "data/sae2/report.md"
 
 # Representation space — Qwen activation extraction
 SAE2_QWEN_MODEL = "Qwen/Qwen2.5-7B"   # base; Apache 2.0, no HF gate
-SAE2_QWEN_LAYERS = [14, 18, 22]       # candidate layers (of 28) — upper-middle band; swept, then one chosen
+SAE2_QWEN_LAYERS = [14, 16, 18, 20, 22, 24, 26]  # candidate layers (of 28) — upper-middle band; swept, then one chosen
 SAE2_QWEN_DIM = 3584                  # Qwen2.5-7B hidden_size
 SAE2_QWEN_MAX_TOKENS = 128
 SAE2_QWEN_BATCH = 4

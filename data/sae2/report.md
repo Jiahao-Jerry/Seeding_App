@@ -1,5 +1,5 @@
 # SAE2 Layer Sweep Report
-Candidate layers: [14, 18, 22]
+Candidate layers: [14, 16, 18, 20, 22, 24, 26]
 Labeled posts used: 1997
 Metric: mean over 9 axes of best-feature max(|r|, |lift|)
 
@@ -8,23 +8,27 @@ Metric: mean over 9 axes of best-feature max(|r|, |lift|)
 | Layer | Alignment Score | Winner |
 |-------|----------------|--------|
 | L14  | 0.1838         | |
+| L16  | 0.2188         | |
 | L18  | 0.2319         | |
-| L22  | 0.2601         | **best** |
+| L20  | 0.2576         | |
+| L22  | 0.2601         | |
+| L24  | 0.2818         | **best** |
+| L26  | 0.2717         | |
 
-**Selected layer: 22**
+**Selected layer: 24**
 
 ## Per-Axis Best-Feature Scores
 
-| Axis | L14 | L18 | L22 |
-|---|---|---|---|
-| reading_level | 0.108 | 0.203 | 0.227 |
-| concreteness | 0.187 | 0.266 | 0.226 |
-| narrativity | 0.127 | 0.221 | 0.308 |
-| hedging | 0.253 | 0.326 | 0.311 |
-| tone | 0.113 | 0.181 | 0.220 |
-| warmth | 0.182 | 0.169 | 0.209 |
-| self_disclosure | 0.214 | 0.255 | 0.281 |
-| casualness | 0.251 | 0.232 | 0.298 |
-| humor | 0.219 | 0.234 | 0.262 |
+| Axis | L14 | L16 | L18 | L20 | L22 | L24 | L26 |
+|---|---|---|---|---|---|---|---|
+| reading_level | 0.108 | 0.177 | 0.203 | 0.202 | 0.227 | 0.202 | 0.188 |
+| concreteness | 0.187 | 0.227 | 0.266 | 0.212 | 0.226 | 0.238 | 0.266 |
+| narrativity | 0.127 | 0.245 | 0.221 | 0.297 | 0.308 | 0.362 | 0.287 |
+| hedging | 0.253 | 0.275 | 0.326 | 0.289 | 0.311 | 0.324 | 0.277 |
+| tone | 0.113 | 0.147 | 0.181 | 0.264 | 0.220 | 0.246 | 0.248 |
+| warmth | 0.182 | 0.166 | 0.169 | 0.214 | 0.209 | 0.253 | 0.249 |
+| self_disclosure | 0.214 | 0.229 | 0.255 | 0.319 | 0.281 | 0.335 | 0.333 |
+| casualness | 0.251 | 0.193 | 0.232 | 0.249 | 0.298 | 0.322 | 0.341 |
+| humor | 0.219 | 0.308 | 0.234 | 0.274 | 0.262 | 0.254 | 0.256 |
 
 *Confirm threshold: ≥0.2, Partial: ≥0.1*

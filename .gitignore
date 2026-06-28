@@ -2,3 +2,7 @@
 __pycache__/
 **/__pycache__/
 *.pyc
+
+# Large embedding/activation matrices (>100MB, cannot push to GitHub)
+data/sae2/qwen/*.npy
+data/sae2/variants/*.npy
