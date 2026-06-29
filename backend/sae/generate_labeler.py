@@ -97,12 +97,46 @@ def build_features(variant: str, dataset: pd.DataFrame, labels: pd.DataFrame) ->
     return features
 
 
-def render_html(all_features: dict[str, list[dict]]) -> str:
-    all_features_json = json.dumps(all_features, ensure_ascii=False)
-    axis_colors_json  = json.dumps(AXIS_COLORS)
-    axis_names_json   = json.dumps(ALL_AXIS_NAMES)
-    variants_json     = json.dumps(VARIANTS)
-    default_variant   = "qwen24_knn"
+def build_variant_meta(features: list[dict], variant: str) -> dict:
+    """Collect config + stats for one variant from meta.json + feature list."""
+    vdir = APP_ROOT / SAE2_VARIANTS_DIR / variant
+    meta = json.loads((vdir / "meta.json").read_text())
+    fl   = meta["final_loss"]
+    hp   = meta.get("hparams", {})
+    conf  = sum(1 for f in features if f["category"] == "confirms_axis")
+    part  = sum(1 for f in features if f["category"] == "partial_overlap")
+    nov   = sum(1 for f in features if f["category"] == "novel_candidate")
+    dead  = sum(1 for f in features if f["category"] == "dead")
+    n     = len(features)
+    return {
+        "config": {
+            "space":   meta.get("space", "?"),
+            "layer":   meta.get("layer", "-"),
+            "l1":      hp.get("l1_coef", meta.get("hparams", {}).get("l1_coef", "?")),
+            "k":       meta.get("knn_k", 20),
+            "removal": meta.get("removal", "?"),
+        },
+        "score":    None,   # filled in JS from correlations
+        "dead_pct": round(100 * fl.get("dead_features", 0) / n) if n else 0,
+        "density":  round(fl.get("mean_density_sample", 0.0), 3),
+        "recon":    round(fl.get("recon", 0.0), 4),
+        "sparsity": round(fl.get("sparsity", 0.0), 4),
+        "total":    round(fl.get("total", 0.0), 4),
+        "confirmed": conf,
+        "partial":   part,
+        "novel":     nov,
+        "dead":      dead,
+    }
+
+
+def render_html(all_features: dict[str, list[dict]],
+                variant_meta: dict[str, dict]) -> str:
+    all_features_json  = json.dumps(all_features, ensure_ascii=False)
+    variant_meta_json  = json.dumps(variant_meta, ensure_ascii=False)
+    axis_colors_json   = json.dumps(AXIS_COLORS)
+    axis_names_json    = json.dumps(ALL_AXIS_NAMES)
+    variants_json      = json.dumps(VARIANTS)
+    default_variant    = "qwen24_knn"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -150,6 +184,17 @@ def render_html(all_features: dict[str, list[dict]]) -> str:
   #filter-bar {{ padding: 8px 12px; border-bottom: 1px solid #2a2d3e; display: flex; flex-direction: column; gap: 6px; }}
   #filter-bar select {{ background: #2a2d3e; color: #e8eaf0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; width: 100%; }}
   #layer-select {{ font-weight: 700; color: #6c8ebf !important; }}
+
+  #variant-stats {{ padding: 10px 12px; border-bottom: 1px solid #2a2d3e; font-size: 11px; }}
+  #variant-stats .stats-title {{ font-size: 10px; font-weight: 700; color: #6c8ebf; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; }}
+  #variant-stats .cfg-row {{ color: #aaa; margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 4px; }}
+  #variant-stats .cfg-chip {{ background: #2a2d3e; border-radius: 3px; padding: 1px 6px; color: #c8cadd; font-family: monospace; }}
+  #variant-stats .stat-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 6px; }}
+  #variant-stats .stat-cell {{ background: #16192a; border-radius: 4px; padding: 5px 8px; }}
+  #variant-stats .stat-label {{ font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.06em; }}
+  #variant-stats .stat-val {{ font-size: 13px; font-weight: 700; color: #e8eaf0; margin-top: 1px; }}
+  #variant-stats .cat-counts {{ display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }}
+  #variant-stats .cat-pill {{ font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }}
 </style>
 </head>
 <body>
@@ -169,12 +214,14 @@ def render_html(all_features: dict[str, list[dict]]) -> str:
       <option value="dead">✗ dead</option>
     </select>
   </div>
+  <div id="variant-stats"></div>
   <div id="feature-list"></div>
 </div>
 <div id="detail"><p style="color:#555;margin-top:40px;text-align:center">Select a feature →</p></div>
 
 <script>
 const ALL_FEATURES  = {all_features_json};
+const VARIANT_META  = {variant_meta_json};
 const AXIS_COLORS   = {axis_colors_json};
 const CAT_COLORS    = {{"confirms_axis":"#5cb85c","partial_overlap":"#e6a817","novel_candidate":"#6c8ebf","dead":"#555"}};
 const AXIS_NAMES    = {axis_names_json};
@@ -196,6 +243,36 @@ VARIANTS.forEach(v => {{
   layerSel.appendChild(opt);
 }});
 
+function updateStats(variant) {{
+  const m = VARIANT_META[variant];
+  if (!m) {{ document.getElementById('variant-stats').innerHTML = ''; return; }}
+  const c = m.config;
+  const spaceLabel = c.space === 'qwen' ? 'Qwen2.5-7B' : 'BGE-M3';
+  const layerLabel = c.layer !== null && c.layer !== '-' ? 'L' + c.layer : '—';
+  const removalLabel = c.removal === 'knn' ? 'kNN (k=' + c.k + ')' : 'raw';
+  document.getElementById('variant-stats').innerHTML = `
+    <div class="stats-title">Variant Config &amp; Stats</div>
+    <div class="cfg-row">
+      <span class="cfg-chip">${{spaceLabel}}</span>
+      <span class="cfg-chip">layer ${{layerLabel}}</span>
+      <span class="cfg-chip">${{removalLabel}}</span>
+      <span class="cfg-chip">L1=${{c.l1}}</span>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-cell"><div class="stat-label">Dead %</div><div class="stat-val">${{m.dead_pct}}%</div></div>
+      <div class="stat-cell"><div class="stat-label">Density</div><div class="stat-val">${{m.density}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Recon</div><div class="stat-val">${{m.recon}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Sparsity</div><div class="stat-val">${{m.sparsity}}</div></div>
+      <div class="stat-cell"><div class="stat-label">Total Loss</div><div class="stat-val">${{m.total}}</div></div>
+    </div>
+    <div class="cat-counts">
+      <span class="cat-pill" style="background:#5cb85c22;color:#5cb85c">✓ ${{m.confirmed}} conf</span>
+      <span class="cat-pill" style="background:#e6a81722;color:#e6a817">~ ${{m.partial}} partial</span>
+      <span class="cat-pill" style="background:#6c8ebf22;color:#6c8ebf">? ${{m.novel}} novel</span>
+      <span class="cat-pill" style="background:#55555522;color:#888">✗ ${{m.dead}} dead</span>
+    </div>`;
+}}
+
 function switchLayer(variant) {{
   currentVariant = variant;
   FEATURES = ALL_FEATURES[variant] || [];
@@ -203,6 +280,7 @@ function switchLayer(variant) {{
   document.getElementById('variant-label').textContent = variant + ' · ' + n + ' features';
   document.getElementById('cat-filter').value = 'all';
   document.getElementById('detail').innerHTML = '<p style="color:#555;margin-top:40px;text-align:center">Select a feature →</p>';
+  updateStats(variant);
   applyFilter();
 }}
 
@@ -319,6 +397,7 @@ if __name__ == "__main__":
     print(f"  {len(dataset)} posts, {len(labels)} labeled")
 
     all_features: dict[str, list[dict]] = {}
+    variant_meta: dict[str, dict] = {}
     for variant in VARIANTS:
         print(f"Building {variant}…")
         feats = build_features(variant, dataset, labels)
@@ -328,9 +407,10 @@ if __name__ == "__main__":
         dead      = sum(1 for f in feats if f["category"] == "dead")
         print(f"  {len(feats)} features: {confirmed} confirmed, {partial} partial, {novel} novel, {dead} dead")
         all_features[variant] = feats
+        variant_meta[variant] = build_variant_meta(feats, variant)
 
     print("Rendering HTML…")
-    html = render_html(all_features)
+    html = render_html(all_features, variant_meta)
 
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(html, encoding="utf-8")
