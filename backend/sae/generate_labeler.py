@@ -82,16 +82,23 @@ def build_features(variant: str, dataset: pd.DataFrame, labels: pd.DataFrame) ->
             lifts.setdefault(ax, 0.0)
             rs.setdefault(ax, 0.0)
 
+        cat = corr.get("category", "novel_candidate")
+        axis_labels = [
+            ax for ax in ALL_AXIS_NAMES
+            if cat != "dead" and max(abs(lifts.get(ax, 0.0)), abs(rs.get(ax, 0.0))) >= SAE2_CONFIRM
+        ]
+
         features.append({
-            "f":         f_idx,
-            "density":   corr.get("density", 0.0),
-            "category":  corr.get("category", "novel_candidate"),
-            "lifts":     {ax: round(lifts.get(ax, 0.0), 4) for ax in ALL_AXIS_NAMES},
-            "rs":        {ax: round(rs.get(ax, 0.0), 4)    for ax in ALL_AXIS_NAMES},
-            "best_axis": corr.get("best_axis"),
-            "best_r":    round(corr.get("best_r", 0.0), 4),
-            "best_lift": round(corr.get("best_lift", 0.0), 4),
-            "examples":  examples,
+            "f":           f_idx,
+            "density":     corr.get("density", 0.0),
+            "category":    cat,
+            "lifts":       {ax: round(lifts.get(ax, 0.0), 4) for ax in ALL_AXIS_NAMES},
+            "rs":          {ax: round(rs.get(ax, 0.0), 4)    for ax in ALL_AXIS_NAMES},
+            "best_axis":   corr.get("best_axis"),
+            "best_r":      round(corr.get("best_r", 0.0), 4),
+            "best_lift":   round(corr.get("best_lift", 0.0), 4),
+            "axis_labels": axis_labels,
+            "examples":    examples,
         })
 
     return features
@@ -300,9 +307,12 @@ function buildSidebar(items) {{
     const catColor = CAT_COLORS[feat.category] || '#555';
     const axLabel  = feat.best_axis ? feat.best_axis.replace(/_/g,' ') : '—';
     const sym      = feat.category === 'confirms_axis' ? '✓' : feat.category === 'partial_overlap' ? '~' : feat.category === 'dead' ? '✗' : '?';
+    const axDisplay = (feat.axis_labels && feat.axis_labels.length)
+      ? feat.axis_labels.map(ax => ax.replace(/_/g,' ')).join(', ')
+      : (feat.best_axis ? feat.best_axis.replace(/_/g,' ') : '—');
     item.innerHTML = `
       <div class="feat-title">F${{feat.f}}<span class="cat-badge" style="background:${{catColor}}22;color:${{catColor}}">${{sym}}</span></div>
-      <div class="feat-sub">${{axLabel}} · lift=${{feat.best_lift.toFixed(3)}} · ρ=${{feat.density.toFixed(3)}}</div>`;
+      <div class="feat-sub">${{axDisplay}} · lift=${{feat.best_lift.toFixed(3)}} · ρ=${{feat.density.toFixed(3)}}</div>`;
     item.addEventListener('click', () => showFeature(feat.f));
     list.appendChild(item);
   }});
@@ -326,23 +336,24 @@ function showFeature(fIdx) {{
   const maxR     = Math.max(...Object.values(feat.rs).map(Math.abs), 0.01);
   const absMax   = Math.max(maxLift, maxR);
 
+  const qualifiedAxes = new Set(feat.axis_labels || (feat.best_axis ? [feat.best_axis] : []));
   let liftHtml = '';
   AXIS_NAMES.forEach(ax => {{
-    const lift   = feat.lifts[ax] || 0;
-    const r      = feat.rs[ax]    || 0;
-    const color  = AXIS_COLORS[ax] || '#6c8ebf';
-    const isBest = ax === feat.best_axis;
+    const lift        = feat.lifts[ax] || 0;
+    const r           = feat.rs[ax]    || 0;
+    const color       = AXIS_COLORS[ax] || '#6c8ebf';
+    const isQualified = qualifiedAxes.has(ax);
     liftHtml += `
       <div class="axis-row">
-        <div class="axis-row-label ${{isBest ? 'best' : ''}}">${{ax.replace(/_/g,' ')}}</div>
+        <div class="axis-row-label ${{isQualified ? 'best' : ''}}">${{ax.replace(/_/g,' ')}}${{isQualified ? ' <span style="font-size:9px;color:#5cb85c;font-weight:700">≥0.2</span>' : ''}}</div>
         <div class="metric-row">
           <div class="metric-tag">lift</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(lift)/absMax*100}}%;background:${{color}};opacity:${{isBest?1:0.55}}"></div></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(lift)/absMax*100}}%;background:${{color}};opacity:${{isQualified?1:0.4}}"></div></div>
           <div class="bar-val">${{lift>=0?'+':''}}${{lift.toFixed(3)}}</div>
         </div>
         <div class="metric-row">
           <div class="metric-tag">r</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(r)/absMax*100}}%;background:${{color}};opacity:${{isBest?0.65:0.3}}"></div></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${{Math.abs(r)/absMax*100}}%;background:${{color}};opacity:${{isQualified?0.65:0.25}}"></div></div>
           <div class="bar-val">${{r>=0?'+':''}}${{r.toFixed(3)}}</div>
         </div>
       </div>`;
@@ -370,9 +381,9 @@ function showFeature(fIdx) {{
     <h2>Feature F${{feat.f}}</h2>
     <div class="meta">
       <span class="cat-badge" style="background:${{catColor}}22;color:${{catColor}};font-size:12px">${{feat.category}}</span>
-      &nbsp; best axis: <strong>${{feat.best_axis || '—'}}</strong>
-      &nbsp; lift: <strong>${{feat.best_lift.toFixed(4)}}</strong>
-      &nbsp; r: <strong>${{feat.best_r.toFixed(4)}}</strong>
+      &nbsp; axes ≥0.2: <strong>${{qualifiedAxes.size ? [...qualifiedAxes].map(a=>a.replace(/_/g,' ')).join(', ') : '—'}}</strong>
+      &nbsp; best lift: <strong>${{feat.best_lift.toFixed(4)}}</strong>
+      &nbsp; best r: <strong>${{feat.best_r.toFixed(4)}}</strong>
       &nbsp; density: <strong>${{feat.density.toFixed(4)}}</strong>
     </div>
     <div class="section-title">Lift across 9 axes</div>
