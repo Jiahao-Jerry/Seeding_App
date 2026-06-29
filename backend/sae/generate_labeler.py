@@ -25,7 +25,7 @@ from config.settings import (
     SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY, SAE2_QWEN_LAYERS,
 )
 
-VARIANTS = ["qwen24_raw", "qwen24_knn", "qwen24_knn_l0004", "bge_raw", "bge_knn"]
+VARIANTS = ["qwen24_raw", "qwen24_knn", "qwen24_knn_l0004", "qwen24_knn_k25_l0004", "bge_raw", "bge_knn"]
 TOP_K    = 10
 OUT_FILE = APP_ROOT / "docs" / "index.html"
 
