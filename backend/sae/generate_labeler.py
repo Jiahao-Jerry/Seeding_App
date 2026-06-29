@@ -25,7 +25,7 @@ from config.settings import (
     SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY, SAE2_QWEN_LAYERS,
 )
 
-VARIANTS = [f"qwen{l}_knn" for l in SAE2_QWEN_LAYERS]
+VARIANTS = [f"qwen{l}_knn" for l in SAE2_QWEN_LAYERS] + ["qwen24_knn_l0004"]
 TOP_K    = 10
 OUT_FILE = APP_ROOT / "docs" / "index.html"
 
@@ -102,7 +102,7 @@ def render_html(all_features: dict[str, list[dict]]) -> str:
     axis_colors_json  = json.dumps(AXIS_COLORS)
     axis_names_json   = json.dumps(ALL_AXIS_NAMES)
     variants_json     = json.dumps(VARIANTS)
-    default_variant   = f"qwen{SAE2_QWEN_LAYERS[-2]}_knn"  # best layer (24)
+    default_variant   = "qwen24_knn_l0004"  # best score+density tradeoff (L24, l1=0.04)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
