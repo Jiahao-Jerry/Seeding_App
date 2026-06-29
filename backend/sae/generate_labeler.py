@@ -97,7 +97,7 @@ def build_features(variant: str, dataset: pd.DataFrame, labels: pd.DataFrame) ->
     return features
 
 
-def build_variant_meta(features: list[dict], variant: str) -> dict:
+def build_variant_meta(features: list[dict], variant: str, score: float | None = None) -> dict:
     """Collect config + stats for one variant from meta.json + feature list."""
     vdir = APP_ROOT / SAE2_VARIANTS_DIR / variant
     meta = json.loads((vdir / "meta.json").read_text())
@@ -116,7 +116,7 @@ def build_variant_meta(features: list[dict], variant: str) -> dict:
             "k":       meta.get("knn_k", 20),
             "removal": meta.get("removal", "?"),
         },
-        "score":    None,   # filled in JS from correlations
+        "score":    round(score, 4) if score is not None else None,
         "dead_pct": round(100 * fl.get("dead_features", 0) / n) if n else 0,
         "density":  round(fl.get("mean_density_sample", 0.0), 3),
         "recon":    round(fl.get("recon", 0.0), 4),
@@ -259,6 +259,7 @@ function updateStats(variant) {{
       <span class="cfg-chip">L1=${{c.l1}}</span>
     </div>
     <div class="stat-grid">
+      <div class="stat-cell" style="grid-column:span 2;background:#1e2d1e"><div class="stat-label">Alignment Score</div><div class="stat-val" style="color:#5cb85c;font-size:18px">${{m.score !== null ? m.score.toFixed(4) : '—'}}</div></div>
       <div class="stat-cell"><div class="stat-label">Dead %</div><div class="stat-val">${{m.dead_pct}}%</div></div>
       <div class="stat-cell"><div class="stat-label">Density</div><div class="stat-val">${{m.density}}</div></div>
       <div class="stat-cell"><div class="stat-label">Recon</div><div class="stat-val">${{m.recon}}</div></div>
@@ -391,10 +392,20 @@ switchLayer(currentVariant);
 
 
 if __name__ == "__main__":
+    import sys
+    sys.path.insert(0, str(APP_ROOT))
+    import numpy as np
+    from backend.sae.run_variant import load_variant
+    from backend.sae.layer_sweep import _alignment_score, _axis_score_matrix
+
     print("Loading dataset and labels…")
     dataset = pd.read_parquet(APP_ROOT / SAE2_DATASET_FILE)
     labels  = pd.read_parquet(APP_ROOT / SAE2_LABELS_FILE)
     print(f"  {len(dataset)} posts, {len(labels)} labeled")
+
+    pid_to_idx  = {str(p): i for i, p in enumerate(dataset["post_id"].astype(str))}
+    row_indices = np.array([pid_to_idx[str(p)] for p in labels["post_id"].astype(str)], dtype=np.int64)
+    axis_mat    = _axis_score_matrix(labels)
 
     all_features: dict[str, list[dict]] = {}
     variant_meta: dict[str, dict] = {}
@@ -406,8 +417,11 @@ if __name__ == "__main__":
         novel     = sum(1 for f in feats if f["category"] == "novel_candidate")
         dead      = sum(1 for f in feats if f["category"] == "dead")
         print(f"  {len(feats)} features: {confirmed} confirmed, {partial} partial, {novel} novel, {dead} dead")
+        _, _, activations = load_variant(variant)
+        score, _ = _alignment_score(activations[row_indices], axis_mat)
+        print(f"  alignment score: {score:.4f}")
         all_features[variant] = feats
-        variant_meta[variant] = build_variant_meta(feats, variant)
+        variant_meta[variant] = build_variant_meta(feats, variant, score=score)
 
     print("Rendering HTML…")
     html = render_html(all_features, variant_meta)
