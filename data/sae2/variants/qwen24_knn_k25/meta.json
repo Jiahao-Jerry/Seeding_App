@@ -1,0 +1,25 @@
+{
+  "object_type": "single_post",
+  "variant_id": "qwen24_knn_k25",
+  "scale": 85.62510681152344,
+  "input_dim": 3584,
+  "n_features": 128,
+  "hparams": {
+    "l1_coef": 0.05,
+    "lr": 0.001,
+    "epochs": 300,
+    "batch_size": 64,
+    "seed": 42
+  },
+  "final_loss": {
+    "recon": 0.5579,
+    "sparsity": 1.52223,
+    "total": 0.63401,
+    "dead_features": 14,
+    "mean_density_sample": 0.1806
+  },
+  "space": "qwen",
+  "layer": 24,
+  "removal": "knn",
+  "knn_k": 25
+}
