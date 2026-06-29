@@ -1,0 +1,23 @@
+{
+  "object_type": "single_post",
+  "variant_id": "bge_knn",
+  "scale": 0.645146369934082,
+  "input_dim": 1024,
+  "n_features": 128,
+  "hparams": {
+    "l1_coef": 0.05,
+    "lr": 0.001,
+    "epochs": 300,
+    "batch_size": 64,
+    "seed": 42
+  },
+  "final_loss": {
+    "recon": 0.65695,
+    "sparsity": 2.7026,
+    "total": 0.79208,
+    "dead_features": 0,
+    "mean_density_sample": 0.3887
+  },
+  "space": "bge",
+  "removal": "knn"
+}

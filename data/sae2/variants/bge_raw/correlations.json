@@ -1,0 +1,3842 @@
+[
+  {
+    "feature": 0,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 1,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 2,
+    "density": 0.4036,
+    "correlations": {
+      "reading_level": 0.032,
+      "concreteness": -0.009,
+      "narrativity": -0.006,
+      "hedging": -0.028,
+      "tone": -0.025,
+      "warmth": 0.232,
+      "self_disclosure": 0.146,
+      "casualness": -0.017,
+      "humor": -0.104
+    },
+    "lifts": {
+      "reading_level": 0.024,
+      "concreteness": 0.008,
+      "narrativity": -0.019,
+      "hedging": 0.011,
+      "tone": -0.033,
+      "warmth": 0.078,
+      "self_disclosure": 0.048,
+      "casualness": -0.029,
+      "humor": -0.092
+    },
+    "best_axis": "warmth",
+    "best_r": 0.232,
+    "best_lift": -0.092,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 3,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 4,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 5,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 6,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 7,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 8,
+    "density": 0.3916,
+    "correlations": {
+      "reading_level": 0.239,
+      "concreteness": 0.251,
+      "narrativity": 0.057,
+      "hedging": -0.043,
+      "tone": -0.288,
+      "warmth": 0.082,
+      "self_disclosure": -0.192,
+      "casualness": -0.297,
+      "humor": -0.165
+    },
+    "lifts": {
+      "reading_level": 0.046,
+      "concreteness": 0.076,
+      "narrativity": 0.016,
+      "hedging": -0.019,
+      "tone": -0.09,
+      "warmth": 0.048,
+      "self_disclosure": -0.068,
+      "casualness": -0.089,
+      "humor": -0.095
+    },
+    "best_axis": "casualness",
+    "best_r": -0.297,
+    "best_lift": -0.095,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 9,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 10,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 11,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 12,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 13,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 14,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 15,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 16,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 17,
+    "density": 0.3655,
+    "correlations": {
+      "reading_level": 0.067,
+      "concreteness": 0.187,
+      "narrativity": 0.049,
+      "hedging": -0.015,
+      "tone": -0.233,
+      "warmth": 0.15,
+      "self_disclosure": 0.092,
+      "casualness": -0.001,
+      "humor": -0.154
+    },
+    "lifts": {
+      "reading_level": 0.016,
+      "concreteness": 0.064,
+      "narrativity": 0.016,
+      "hedging": 0.001,
+      "tone": -0.071,
+      "warmth": 0.067,
+      "self_disclosure": 0.024,
+      "casualness": -0.023,
+      "humor": -0.094
+    },
+    "best_axis": "tone",
+    "best_r": -0.233,
+    "best_lift": -0.094,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 18,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 19,
+    "density": 0.4166,
+    "correlations": {
+      "reading_level": -0.063,
+      "concreteness": 0.056,
+      "narrativity": -0.095,
+      "hedging": -0.049,
+      "tone": 0.051,
+      "warmth": -0.136,
+      "self_disclosure": -0.151,
+      "casualness": -0.008,
+      "humor": -0.004
+    },
+    "lifts": {
+      "reading_level": -0.01,
+      "concreteness": 0.025,
+      "narrativity": -0.04,
+      "hedging": -0.023,
+      "tone": 0.003,
+      "warmth": -0.043,
+      "self_disclosure": -0.084,
+      "casualness": -0.022,
+      "humor": -0.034
+    },
+    "best_axis": "self_disclosure",
+    "best_r": -0.151,
+    "best_lift": -0.084,
+    "category": "partial_overlap"
+  },
+  {
+    "feature": 20,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 21,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 22,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 23,
+    "density": 0.3861,
+    "correlations": {
+      "reading_level": -0.167,
+      "concreteness": 0.174,
+      "narrativity": 0.272,
+      "hedging": -0.079,
+      "tone": -0.107,
+      "warmth": 0.275,
+      "self_disclosure": 0.091,
+      "casualness": 0.103,
+      "humor": 0.11
+    },
+    "lifts": {
+      "reading_level": -0.029,
+      "concreteness": 0.063,
+      "narrativity": 0.076,
+      "hedging": -0.03,
+      "tone": -0.038,
+      "warmth": 0.067,
+      "self_disclosure": 0.012,
+      "casualness": 0.017,
+      "humor": 0.045
+    },
+    "best_axis": "warmth",
+    "best_r": 0.275,
+    "best_lift": 0.076,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 24,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 25,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 26,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 27,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 28,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 29,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 30,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 31,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 32,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 33,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 34,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 35,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 36,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 37,
+    "density": 0.4662,
+    "correlations": {
+      "reading_level": -0.156,
+      "concreteness": -0.288,
+      "narrativity": -0.155,
+      "hedging": 0.052,
+      "tone": 0.177,
+      "warmth": -0.258,
+      "self_disclosure": 0.03,
+      "casualness": 0.16,
+      "humor": 0.22
+    },
+    "lifts": {
+      "reading_level": -0.04,
+      "concreteness": -0.078,
+      "narrativity": -0.021,
+      "hedging": 0.023,
+      "tone": 0.062,
+      "warmth": -0.085,
+      "self_disclosure": 0.038,
+      "casualness": 0.06,
+      "humor": 0.131
+    },
+    "best_axis": "concreteness",
+    "best_r": -0.288,
+    "best_lift": 0.131,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 38,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 39,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 40,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 41,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 42,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 43,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 44,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 45,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 46,
+    "density": 0.4912,
+    "correlations": {
+      "reading_level": -0.255,
+      "concreteness": 0.077,
+      "narrativity": 0.229,
+      "hedging": 0.057,
+      "tone": 0.017,
+      "warmth": 0.158,
+      "self_disclosure": 0.379,
+      "casualness": 0.193,
+      "humor": 0.04
+    },
+    "lifts": {
+      "reading_level": -0.049,
+      "concreteness": 0.015,
+      "narrativity": 0.06,
+      "hedging": 0.017,
+      "tone": -0.004,
+      "warmth": 0.046,
+      "self_disclosure": 0.123,
+      "casualness": 0.043,
+      "humor": 0.013
+    },
+    "best_axis": "self_disclosure",
+    "best_r": 0.379,
+    "best_lift": 0.123,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 47,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 48,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 49,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 50,
+    "density": 0.346,
+    "correlations": {
+      "reading_level": 0.071,
+      "concreteness": -0.234,
+      "narrativity": -0.15,
+      "hedging": 0.06,
+      "tone": 0.129,
+      "warmth": -0.225,
+      "self_disclosure": -0.102,
+      "casualness": -0.043,
+      "humor": 0.046
+    },
+    "lifts": {
+      "reading_level": 0.023,
+      "concreteness": -0.075,
+      "narrativity": -0.067,
+      "hedging": 0.03,
+      "tone": 0.031,
+      "warmth": -0.059,
+      "self_disclosure": -0.059,
+      "casualness": -0.002,
+      "humor": 0.021
+    },
+    "best_axis": "concreteness",
+    "best_r": -0.234,
+    "best_lift": -0.075,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 51,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 52,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 53,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 54,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 55,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 56,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 57,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 58,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 59,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 60,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 61,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 62,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 63,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 64,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 65,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 66,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 67,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 68,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 69,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 70,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 71,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 72,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 73,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 74,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 75,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 76,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 77,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 78,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 79,
+    "density": 0.4467,
+    "correlations": {
+      "reading_level": 0.004,
+      "concreteness": -0.264,
+      "narrativity": -0.171,
+      "hedging": 0.043,
+      "tone": 0.233,
+      "warmth": -0.363,
+      "self_disclosure": -0.137,
+      "casualness": -0.008,
+      "humor": 0.053
+    },
+    "lifts": {
+      "reading_level": 0.009,
+      "concreteness": -0.065,
+      "narrativity": -0.051,
+      "hedging": 0.026,
+      "tone": 0.051,
+      "warmth": -0.106,
+      "self_disclosure": -0.053,
+      "casualness": -0.007,
+      "humor": 0.027
+    },
+    "best_axis": "warmth",
+    "best_r": -0.363,
+    "best_lift": -0.106,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 80,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 81,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 82,
+    "density": 0.3951,
+    "correlations": {
+      "reading_level": 0.299,
+      "concreteness": 0.14,
+      "narrativity": -0.022,
+      "hedging": 0.03,
+      "tone": -0.138,
+      "warmth": 0.068,
+      "self_disclosure": -0.16,
+      "casualness": -0.198,
+      "humor": -0.165
+    },
+    "lifts": {
+      "reading_level": 0.071,
+      "concreteness": 0.029,
+      "narrativity": -0.03,
+      "hedging": 0.019,
+      "tone": -0.055,
+      "warmth": 0.017,
+      "self_disclosure": -0.075,
+      "casualness": -0.071,
+      "humor": -0.09
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.299,
+    "best_lift": -0.09,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 83,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 84,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 85,
+    "density": 0.4021,
+    "correlations": {
+      "reading_level": 0.02,
+      "concreteness": 0.076,
+      "narrativity": -0.023,
+      "hedging": -0.061,
+      "tone": -0.018,
+      "warmth": 0.091,
+      "self_disclosure": -0.004,
+      "casualness": -0.013,
+      "humor": -0.028
+    },
+    "lifts": {
+      "reading_level": 0.005,
+      "concreteness": 0.019,
+      "narrativity": -0.015,
+      "hedging": -0.029,
+      "tone": -0.001,
+      "warmth": 0.02,
+      "self_disclosure": -0.017,
+      "casualness": -0.005,
+      "humor": -0.003
+    },
+    "best_axis": "warmth",
+    "best_r": 0.091,
+    "best_lift": -0.029,
+    "category": "novel_candidate"
+  },
+  {
+    "feature": 86,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 87,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 88,
+    "density": 0.5028,
+    "correlations": {
+      "reading_level": -0.028,
+      "concreteness": -0.21,
+      "narrativity": -0.082,
+      "hedging": -0.018,
+      "tone": 0.098,
+      "warmth": 0.124,
+      "self_disclosure": 0.076,
+      "casualness": -0.007,
+      "humor": -0.027
+    },
+    "lifts": {
+      "reading_level": 0.003,
+      "concreteness": -0.057,
+      "narrativity": -0.032,
+      "hedging": 0.009,
+      "tone": 0.024,
+      "warmth": 0.031,
+      "self_disclosure": 0.018,
+      "casualness": -0.008,
+      "humor": -0.023
+    },
+    "best_axis": "concreteness",
+    "best_r": -0.21,
+    "best_lift": -0.057,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 89,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 90,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 91,
+    "density": 0.4417,
+    "correlations": {
+      "reading_level": -0.049,
+      "concreteness": -0.003,
+      "narrativity": -0.076,
+      "hedging": -0.007,
+      "tone": 0.008,
+      "warmth": -0.128,
+      "self_disclosure": -0.124,
+      "casualness": -0.074,
+      "humor": 0.027
+    },
+    "lifts": {
+      "reading_level": -0.006,
+      "concreteness": -0.003,
+      "narrativity": -0.027,
+      "hedging": 0.004,
+      "tone": -0.016,
+      "warmth": -0.033,
+      "self_disclosure": -0.053,
+      "casualness": -0.021,
+      "humor": -0.005
+    },
+    "best_axis": "warmth",
+    "best_r": -0.128,
+    "best_lift": -0.053,
+    "category": "partial_overlap"
+  },
+  {
+    "feature": 92,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 93,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 94,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 95,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 96,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 97,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 98,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 99,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 100,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 101,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 102,
+    "density": 0.3986,
+    "correlations": {
+      "reading_level": 0.024,
+      "concreteness": 0.173,
+      "narrativity": 0.134,
+      "hedging": -0.021,
+      "tone": -0.205,
+      "warmth": 0.3,
+      "self_disclosure": 0.076,
+      "casualness": -0.053,
+      "humor": -0.169
+    },
+    "lifts": {
+      "reading_level": 0.009,
+      "concreteness": 0.044,
+      "narrativity": 0.023,
+      "hedging": 0.005,
+      "tone": -0.075,
+      "warmth": 0.089,
+      "self_disclosure": 0.019,
+      "casualness": -0.036,
+      "humor": -0.102
+    },
+    "best_axis": "warmth",
+    "best_r": 0.3,
+    "best_lift": -0.102,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 103,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 104,
+    "density": 0.4076,
+    "correlations": {
+      "reading_level": 0.148,
+      "concreteness": -0.259,
+      "narrativity": -0.269,
+      "hedging": 0.068,
+      "tone": 0.113,
+      "warmth": -0.322,
+      "self_disclosure": -0.21,
+      "casualness": -0.131,
+      "humor": -0.018
+    },
+    "lifts": {
+      "reading_level": 0.034,
+      "concreteness": -0.084,
+      "narrativity": -0.097,
+      "hedging": 0.039,
+      "tone": 0.028,
+      "warmth": -0.115,
+      "self_disclosure": -0.079,
+      "casualness": -0.04,
+      "humor": 0.005
+    },
+    "best_axis": "warmth",
+    "best_r": -0.322,
+    "best_lift": -0.115,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 105,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 106,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 107,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 108,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 109,
+    "density": 0.5103,
+    "correlations": {
+      "reading_level": -0.022,
+      "concreteness": -0.282,
+      "narrativity": -0.142,
+      "hedging": 0.152,
+      "tone": 0.149,
+      "warmth": -0.213,
+      "self_disclosure": 0.017,
+      "casualness": 0.136,
+      "humor": 0.121
+    },
+    "lifts": {
+      "reading_level": -0.001,
+      "concreteness": -0.096,
+      "narrativity": -0.04,
+      "hedging": 0.063,
+      "tone": 0.057,
+      "warmth": -0.071,
+      "self_disclosure": 0.019,
+      "casualness": 0.047,
+      "humor": 0.079
+    },
+    "best_axis": "concreteness",
+    "best_r": -0.282,
+    "best_lift": -0.096,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 110,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 111,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 112,
+    "density": 0.4171,
+    "correlations": {
+      "reading_level": -0.164,
+      "concreteness": 0.205,
+      "narrativity": 0.094,
+      "hedging": -0.107,
+      "tone": -0.126,
+      "warmth": 0.219,
+      "self_disclosure": 0.104,
+      "casualness": 0.108,
+      "humor": 0.013
+    },
+    "lifts": {
+      "reading_level": -0.028,
+      "concreteness": 0.057,
+      "narrativity": 0.012,
+      "hedging": -0.025,
+      "tone": -0.035,
+      "warmth": 0.063,
+      "self_disclosure": 0.034,
+      "casualness": 0.013,
+      "humor": -0.004
+    },
+    "best_axis": "warmth",
+    "best_r": 0.219,
+    "best_lift": 0.063,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 113,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 114,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 115,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 116,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 117,
+    "density": 0.3766,
+    "correlations": {
+      "reading_level": 0.175,
+      "concreteness": -0.249,
+      "narrativity": -0.185,
+      "hedging": 0.093,
+      "tone": 0.129,
+      "warmth": -0.241,
+      "self_disclosure": -0.112,
+      "casualness": -0.136,
+      "humor": -0.001
+    },
+    "lifts": {
+      "reading_level": 0.063,
+      "concreteness": -0.088,
+      "narrativity": -0.093,
+      "hedging": 0.048,
+      "tone": 0.023,
+      "warmth": -0.089,
+      "self_disclosure": -0.077,
+      "casualness": -0.056,
+      "humor": -0.018
+    },
+    "best_axis": "concreteness",
+    "best_r": -0.249,
+    "best_lift": -0.093,
+    "category": "confirms_axis"
+  },
+  {
+    "feature": 118,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 119,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 120,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 121,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 122,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 123,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 124,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 125,
+    "density": 0.0,
+    "correlations": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "lifts": {
+      "reading_level": 0.0,
+      "concreteness": 0.0,
+      "narrativity": 0.0,
+      "hedging": 0.0,
+      "tone": 0.0,
+      "warmth": 0.0,
+      "self_disclosure": 0.0,
+      "casualness": 0.0,
+      "humor": 0.0
+    },
+    "best_axis": "reading_level",
+    "best_r": 0.0,
+    "best_lift": 0.0,
+    "category": "dead"
+  },
+  {
+    "feature": 126,
+    "density": 0.3305,
+    "correlations": {
+      "reading_level": -0.077,
+      "concreteness": 0.084,
+      "narrativity": -0.039,
+      "hedging": -0.014,
+      "tone": -0.043,
+      "warmth": 0.122,
+      "self_disclosure": 0.05,
+      "casualness": 0.065,
+      "humor": -0.005
+    },
+    "lifts": {
+      "reading_level": -0.004,
+      "concreteness": 0.035,
+      "narrativity": -0.031,
+      "hedging": -0.016,
+      "tone": -0.033,
+      "warmth": 0.049,
+      "self_disclosure": -0.001,
+      "casualness": -0.002,
+      "humor": -0.024
+    },
+    "best_axis": "warmth",
+    "best_r": 0.122,
+    "best_lift": 0.049,
+    "category": "partial_overlap"
+  },
+  {
+    "feature": 127,
+    "density": 0.4026,
+    "correlations": {
+      "reading_level": 0.175,
+      "concreteness": -0.088,
+      "narrativity": -0.19,
+      "hedging": 0.03,
+      "tone": -0.014,
+      "warmth": -0.149,
+      "self_disclosure": -0.242,
+      "casualness": -0.242,
+      "humor": -0.172
+    },
+    "lifts": {
+      "reading_level": 0.051,
+      "concreteness": -0.026,
+      "narrativity": -0.075,
+      "hedging": 0.01,
+      "tone": -0.012,
+      "warmth": -0.05,
+      "self_disclosure": -0.116,
+      "casualness": -0.076,
+      "humor": -0.109
+    },
+    "best_axis": "self_disclosure",
+    "best_r": -0.242,
+    "best_lift": -0.116,
+    "category": "confirms_axis"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "object_type": "single_post",
+  "variant_id": "qwen24_raw",
+  "scale": 423.65130615234375,
+  "input_dim": 3584,
+  "n_features": 128,
+  "hparams": {
+    "l1_coef": 0.05,
+    "lr": 0.001,
+    "epochs": 300,
+    "batch_size": 64,
+    "seed": 42
+  },
+  "final_loss": {
+    "recon": 0.05121,
+    "sparsity": 0.26007,
+    "total": 0.06421,
+    "dead_features": 120,
+    "mean_density_sample": 0.0154
+  },
+  "space": "qwen",
+  "removal": "raw",
+  "layer": 24
+}

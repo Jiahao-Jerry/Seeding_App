@@ -1,0 +1,23 @@
+{
+  "object_type": "single_post",
+  "variant_id": "bge_raw",
+  "scale": 0.9999940395355225,
+  "input_dim": 1024,
+  "n_features": 128,
+  "hparams": {
+    "l1_coef": 0.05,
+    "lr": 0.001,
+    "epochs": 300,
+    "batch_size": 64,
+    "seed": 42
+  },
+  "final_loss": {
+    "recon": 0.50824,
+    "sparsity": 0.6411,
+    "total": 0.5403,
+    "dead_features": 108,
+    "mean_density_sample": 0.0645
+  },
+  "space": "bge",
+  "removal": "raw"
+}
