@@ -25,7 +25,11 @@ from config.settings import (
     SAE2_CONFIRM, SAE2_PARTIAL, SAE2_DEAD_DENSITY, SAE2_QWEN_LAYERS,
 )
 
-VARIANTS = ["qwen24_raw", "qwen24_knn", "qwen24_knn_l0004", "qwen24_knn_k25_l0004", "qwen24_knn_k25_l0004_f256", "bge_raw", "bge_knn"]
+VARIANTS = [
+    "qwen14_knn", "qwen16_knn", "qwen18_knn", "qwen20_knn", "qwen22_knn", "qwen24_knn", "qwen26_knn",
+    "qwen24_raw", "qwen24_knn_l0004", "qwen24_knn_k25_l0004", "qwen24_knn_k25_l0004_f256",
+    "bge_raw", "bge_knn",
+]
 TOP_K    = 10
 OUT_FILE = APP_ROOT / "docs" / "index.html"
 
@@ -143,7 +147,7 @@ def render_html(all_features: dict[str, list[dict]],
     axis_colors_json   = json.dumps(AXIS_COLORS)
     axis_names_json    = json.dumps(ALL_AXIS_NAMES)
     variants_json      = json.dumps(VARIANTS)
-    default_variant    = "qwen24_knn"
+    default_variant    = "qwen24_knn"  # default to L24 baseline
 
     return f"""<!DOCTYPE html>
 <html lang="en">
