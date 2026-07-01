@@ -39,6 +39,23 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+async def _warmup_qwen():
+    """Load SAE weights and Qwen into memory at startup so the first
+    SAE Verification click responds instantly instead of timing out."""
+    import asyncio, threading
+    def _load():
+        try:
+            from backend.sae_verify import load_sae, load_qwen
+            load_sae()
+            print("[startup] SAE weights loaded.")
+            load_qwen()
+            print("[startup] Qwen2.5-7B ready.")
+        except Exception as e:
+            print(f"[startup] Qwen warm-up failed: {e}")
+    threading.Thread(target=_load, daemon=True).start()
+
+
 # ── Data loading ─────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parent.parent / "data"
 
