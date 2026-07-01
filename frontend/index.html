@@ -205,9 +205,11 @@ function applyDevMode() {
 
 // ── Start ────────────────────────────────────────────────────────
 async function startSession() {
+  document.getElementById('step-label').textContent = 'Loading…';
   const res = await fetch(`${API}/api/session/start`, { method: 'POST' });
   const data = await res.json();
   sessionId = data.session_id;
+  document.getElementById('step-label').textContent = 'Step 1';
   renderPosts(data.posts, data.action);
 }
 
@@ -224,16 +226,12 @@ function renderPosts(posts, action) {
   if (action.mode === 'pair') {
     document.getElementById('instr-title').textContent = 'Pick the one you\'d rather read.';
     document.getElementById('instr-hint').textContent = '';
-    if (DEV_MODE) {
-      document.getElementById('mode-label').textContent =
-        `Probing: ${action.target_axis.replace('_', ' ')}`;
-    }
+    document.getElementById('mode-label').textContent =
+      `Mode B — probing: ${action.target_axis.replace(/_/g, ' ')}`;
   } else {
     document.getElementById('instr-title').textContent = 'Tap any posts that catch your interest.';
     document.getElementById('instr-hint').textContent = '';
-    if (DEV_MODE) {
-      document.getElementById('mode-label').textContent = 'Mode A: Topic discovery';
-    }
+    document.getElementById('mode-label').textContent = 'Mode A: Topic discovery';
   }
 
   posts.forEach(post => {

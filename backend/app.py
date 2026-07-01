@@ -197,38 +197,68 @@ def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
     """
     target_axis = action["target_axis"]
 
-    # Exclude already-used pairs
+    # Exclude posts already seen in any mode
+    seen_posts = set()
     used_pairs = set()
     for h in state.history:
         shown = h.get("shown", [])
+        for pid in shown:
+            seen_posts.add(str(pid))
         if len(shown) == 2:
             used_pairs.add(tuple(sorted(shown)))
 
+    def pair_is_fresh(high_id, low_id):
+        h, l = str(high_id), str(low_id)
+        key = tuple(sorted([h, l]))
+        if key in used_pairs:
+            return False
+        # Prefer both posts unseen; accept one seen only as last resort
+        return h not in seen_posts and l not in seen_posts
+
+    def pair_is_acceptable(high_id, low_id):
+        """Fallback: at least the pair combo hasn't been shown."""
+        key = tuple(sorted([str(high_id), str(low_id)]))
+        return key not in used_pairs
+
     best_pair = None
 
-    # Priority 1: cross-topic pairs (more obvious style differences)
+    # Priority 1: cross-topic pairs, both posts fresh
     if cross_pairs is not None and not cross_pairs.empty:
-        ct_mask = cross_pairs["target_axis"] == target_axis
-        ct_available = cross_pairs[ct_mask].sort_values("score", ascending=False)
+        ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
         for _, pair_row in ct_available.iterrows():
-            key = tuple(sorted([str(pair_row["high_post_id"]), str(pair_row["low_post_id"])]))
-            if key not in used_pairs:
+            if pair_is_fresh(pair_row["high_post_id"], pair_row["low_post_id"]):
                 best_pair = pair_row
                 break
 
-    # Priority 2: within-topic pairs (same axis, any topic)
+    # Priority 2: within-topic pairs, both posts fresh
     if best_pair is None and not pairs.empty:
-        wt_mask = pairs["target_axis"] == target_axis
-        wt_available = pairs[wt_mask].sort_values("score", ascending=False)
+        wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
         for _, pair_row in wt_available.iterrows():
-            key = tuple(sorted([str(pair_row["high_post_id"]), str(pair_row["low_post_id"])]))
-            if key not in used_pairs:
+            if pair_is_fresh(pair_row["high_post_id"], pair_row["low_post_id"]):
                 best_pair = pair_row
                 break
 
-    # Final fallback: random pair from corpus
+    # Priority 3: cross-topic pairs, at least the combo is new (one post may repeat)
+    if best_pair is None and cross_pairs is not None and not cross_pairs.empty:
+        ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
+        for _, pair_row in ct_available.iterrows():
+            if pair_is_acceptable(pair_row["high_post_id"], pair_row["low_post_id"]):
+                best_pair = pair_row
+                break
+
+    # Priority 4: within-topic pairs, at least the combo is new
+    if best_pair is None and not pairs.empty:
+        wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
+        for _, pair_row in wt_available.iterrows():
+            if pair_is_acceptable(pair_row["high_post_id"], pair_row["low_post_id"]):
+                best_pair = pair_row
+                break
+
+    # Final fallback: random unseen posts from corpus
     if best_pair is None:
-        sampled = corpus.sample(2)
+        unseen = corpus[~corpus["post_id"].isin(seen_posts)]
+        pool = unseen if len(unseen) >= 2 else corpus
+        sampled = pool.sample(min(2, len(pool)))
         posts = [post_to_api_dict(row) for _, row in sampled.iterrows()]
         random.shuffle(posts)
         return posts

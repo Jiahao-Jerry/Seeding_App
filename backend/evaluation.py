@@ -179,15 +179,21 @@ def construct_trials(
 
     trials = []
     trial_idx = 0
+    used_in_trials: set[str] = set()  # track posts used across all trial types
 
     def _get_axes(row):
         return json.loads(row["axes_json"]) if pd.notna(row.get("axes_json")) else {}
 
+    def _fresh(df: pd.DataFrame) -> pd.DataFrame:
+        """Filter out posts already used in earlier trial types."""
+        return df[~df["post_id"].astype(str).isin(used_in_trials)]
+
     # ── Type A: same band, one transformed ────────────────────────
     for band_df, band_name, count in [(near, "near", n_type_a // 2), (mid, "mid", n_type_a // 2)]:
-        if len(band_df) < count * 2:
-            count = len(band_df) // 2
-        sample = _diverse_sample(band_df, count * 2, seed)
+        pool = _fresh(band_df)
+        if len(pool) < count * 2:
+            count = len(pool) // 2
+        sample = _diverse_sample(pool, count * 2, seed)
         pairs = [(sample.iloc[i], sample.iloc[i + count]) for i in range(count)]
 
         for original_row, transform_row in pairs:
@@ -196,7 +202,9 @@ def construct_trials(
             if not tx_axes:
                 continue
 
-            # Randomize left/right
+            used_in_trials.add(str(original_row["post_id"]))
+            used_in_trials.add(str(transform_row["post_id"]))
+
             if rng.random() < 0.5:
                 trials.append(Trial(
                     trial_id=f"A-{trial_idx}",
@@ -224,17 +232,20 @@ def construct_trials(
             trial_idx += 1
 
     # ── Type B: transformed-mid vs original-near ──────────────────
-    n_b = min(n_type_b, len(near), len(mid))
-    near_sample = _diverse_sample(near, n_b, seed + 1)
-    mid_sample = _diverse_sample(mid, n_b, seed + 2)
+    n_b = min(n_type_b, len(_fresh(near)), len(_fresh(mid)))
+    near_sample = _diverse_sample(_fresh(near), n_b, seed + 1)
+    mid_sample = _diverse_sample(_fresh(mid), n_b, seed + 2)
 
-    for i in range(n_b):
+    for i in range(min(n_b, len(near_sample), len(mid_sample))):
         near_row = near_sample.iloc[i]
         mid_row = mid_sample.iloc[i]
         axes = _get_axes(mid_row)
         tx_axes = _pick_transform_axes(axes, user_prefs)
         if not tx_axes:
             continue
+
+        used_in_trials.add(str(near_row["post_id"]))
+        used_in_trials.add(str(mid_row["post_id"]))
 
         if rng.random() < 0.5:
             trials.append(Trial(
@@ -263,22 +274,24 @@ def construct_trials(
         trial_idx += 1
 
     # ── Type C: same post, two versions ───────────────────────────
-    c_pool = pd.concat([near, mid]).sample(min(n_type_c, len(near) + len(mid)),
-                                           random_state=seed + 3, replace=False)
-    for i in range(min(n_type_c, len(c_pool))):
+    c_pool_df = _fresh(pd.concat([near, mid]))
+    c_pool = c_pool_df.sample(min(n_type_c, len(c_pool_df)),
+                              random_state=seed + 3, replace=False)
+    for i in range(len(c_pool)):
         row = c_pool.iloc[i]
         axes = _get_axes(row)
         tx_axes = _pick_transform_axes(axes, user_prefs)
         if not tx_axes:
             continue
 
+        used_in_trials.add(str(row["post_id"]))
         band = row.get("band", "mid") if "band" in c_pool.columns else "mid"
         if rng.random() < 0.5:
             trials.append(Trial(
                 trial_id=f"C-{trial_idx}",
                 trial_type="C",
                 left_post_id=str(row["post_id"]),
-                right_post_id=str(row["post_id"]),  # same post!
+                right_post_id=str(row["post_id"]),  # same post, two versions
                 left_is_transformed=False,
                 right_is_transformed=True,
                 left_band=band,
