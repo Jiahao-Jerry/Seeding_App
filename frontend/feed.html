@@ -244,12 +244,16 @@ function buildFeedItem(item) {
     </div>
     <div class="changes">${item.changes_made}</div>
     <div class="deltas">${deltasHtml}</div>
-    <div class="sae-toggle" onclick="toggleSAE('${saeId}', this, ${JSON.stringify(item).replace(/'/g,"&#39;")})">
-      ▶ SAE Verification
-    </div>
+    <div class="sae-toggle" id="toggle-${saeId}">▶ SAE Verification</div>
     <div class="sae-panel" id="${saeId}">
-      <span class="verdict loading">⏳ Loading Qwen2.5-7B…</span>
+      <span class="verdict loading">⏳ Waiting for Qwen2.5-7B…</span>
     </div>`;
+
+  // Use closure to avoid JSON-in-onclick quoting issues
+  el.querySelector(`#toggle-${saeId}`).addEventListener('click', function() {
+    toggleSAE(saeId, this, item);
+  });
+
   return el;
 }
 
@@ -267,6 +271,8 @@ function toggleSAE(panelId, toggleEl, item) {
   if (panel.dataset.loaded) return;
   panel.dataset.loaded = '1';
 
+  panel.innerHTML = `<span class="verdict loading">⏳ Running SAE analysis… (first call loads Qwen ~30s)</span>`;
+
   const targetAxes = Object.keys(item.deltas);
   fetch('/api/sae-verify', {
     method: 'POST',
@@ -278,9 +284,10 @@ function toggleSAE(panelId, toggleEl, item) {
       orig_post_id: item.post_id,
     }),
   })
-  .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+  .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(t)))
   .then(data => renderSAEPanel(panel, data, targetAxes))
   .catch(err => {
+    panel.dataset.loaded = '';  // allow retry
     panel.innerHTML = `<span style="color:#f87171">SAE verify failed: ${err}</span>`;
   });
 }
