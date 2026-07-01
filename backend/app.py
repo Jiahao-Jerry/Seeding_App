@@ -467,7 +467,8 @@ async def transform_endpoint(req: TransformRequest):
 
     result = await transform_post(
         original_text, post_axes, user_prefs,
-        verify=req.verify
+        verify=req.verify,
+        orig_post_id=req.post_id,
     )
 
     return TransformResponse(
@@ -538,7 +539,9 @@ async def get_feed(req: FeedRequest):
     for _, row in sample.iterrows():
         post_axes = json.loads(row["axes_json"]) if pd.notna(row.get("axes_json")) else {}
         result = await transform_post(
-            row["text"], post_axes, user_prefs, verify=False  # skip verify for speed
+            row["text"], post_axes, user_prefs,
+            verify=False,  # skip LLM substance check for feed speed
+            orig_post_id=str(row["post_id"]),
         )
         feed_items.append({
             "post_id": str(row["post_id"]),
@@ -624,6 +627,7 @@ async def eval_start(req: EvalStartRequest):
                 left_text, post_axes, user_prefs,
                 verify=settings.verify_transform,
                 max_axes=settings.max_axes,
+                orig_post_id=str(left_row["post_id"]),
             )
             left_text = result["rewritten_text"]
 
@@ -633,6 +637,7 @@ async def eval_start(req: EvalStartRequest):
                 right_text, post_axes, user_prefs,
                 verify=settings.verify_transform,
                 max_axes=settings.max_axes,
+                orig_post_id=str(right_row["post_id"]),
             )
             right_text = result["rewritten_text"]
 

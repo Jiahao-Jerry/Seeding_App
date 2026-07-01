@@ -66,7 +66,9 @@ def compute_transform_deltas(post_axes: dict, user_prefs: dict,
 
 async def transform_post(original_text: str, post_axes: dict,
                          user_prefs: dict, model: str = LLM_MODEL_PROFILE,
-                         verify: bool = True, max_axes: int = 2) -> dict:
+                         verify: bool = True, max_axes: int = 2,
+                         orig_post_id: str | None = None,
+                         sae_gate: bool = True) -> dict:
     """
     Full transformation pipeline.
 
@@ -97,6 +99,7 @@ async def transform_post(original_text: str, post_axes: dict,
     rewritten = result.get("rewritten_text", original_text)
     transform_confidence = result.get("confidence", 0.0)
 
+    # ── Gate 1: LLM substance check ───────────────────────────────
     verification = None
     if verify:
         verification = await llm_json(verify_system(), verify_user(original_text, rewritten), model=model)
@@ -107,8 +110,35 @@ async def transform_post(original_text: str, post_axes: dict,
                 "changes_made": "Transformation rejected — substance not preserved.",
                 "deltas": deltas,
                 "verification": verification,
+                "sae_verification": None,
                 "used_original": True,
             }
+
+    # ── Gate 2: SAE axis-leak check ───────────────────────────────
+    sae_verification = None
+    if sae_gate:
+        import asyncio
+        from backend.sae_verify import verify_rewrite as _sae_verify, _qwen_model
+        if _qwen_model is not None:  # only gate if Qwen is already loaded
+            target_axes = list(deltas.keys())
+            loop = asyncio.get_event_loop()
+            sae_verification = await loop.run_in_executor(
+                None,
+                lambda: _sae_verify(original_text, rewritten, target_axes, orig_post_id),
+            )
+            if sae_verification.get("verdict") == "leaked":
+                return {
+                    "rewritten_text": original_text,
+                    "changes_made": (
+                        f"Transformation rejected — SAE detected axis leakage "
+                        f"(target shift {sae_verification['max_target_shift']:.3f}, "
+                        f"unintended shift {sae_verification['max_other_shift']:.3f})."
+                    ),
+                    "deltas": deltas,
+                    "verification": verification,
+                    "sae_verification": sae_verification,
+                    "used_original": True,
+                }
 
     return {
         "rewritten_text": rewritten,
@@ -117,5 +147,6 @@ async def transform_post(original_text: str, post_axes: dict,
         "transform_confidence": transform_confidence,
         "deltas": deltas,
         "verification": verification,
+        "sae_verification": sae_verification,
         "used_original": False,
     }
