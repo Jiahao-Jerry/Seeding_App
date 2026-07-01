@@ -63,6 +63,71 @@ body {
   font-style: italic;
 }
 
+/* ── SAE analysis panel ─────────────────────────────────────── */
+.sae-toggle {
+  margin-top: 12px; font-size: 0.75rem; color: #6b7280;
+  cursor: pointer; user-select: none; display: inline-flex;
+  align-items: center; gap: 6px;
+}
+.sae-toggle:hover { color: #a78bfa; }
+.sae-panel {
+  display: none; margin-top: 12px;
+  background: #12141f; border: 1px solid #2a2d3e;
+  border-radius: 10px; padding: 16px; font-size: 0.8rem;
+}
+.sae-panel.open { display: block; }
+.sae-section-title {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #4b5563; margin: 14px 0 6px;
+}
+.sae-section-title:first-child { margin-top: 0; }
+
+/* Verdict badge */
+.verdict {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-weight: 700;
+  font-size: 0.75rem; letter-spacing: 0.04em;
+}
+.verdict.clean { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+.verdict.leaked { background: #1c1403; color: #fbbf24; border: 1px solid #92400e; }
+.verdict.loading { background: #1e2130; color: #6b7280; border: 1px solid #374151; }
+
+/* Axis shift bars */
+.axis-bars { display: flex; flex-direction: column; gap: 5px; }
+.axis-row {
+  display: grid; grid-template-columns: 130px 1fr 52px;
+  align-items: center; gap: 8px;
+}
+.axis-name { font-size: 0.75rem; color: #9ca3af; text-align: right; }
+.axis-name.target { color: #a78bfa; font-weight: 600; }
+.bar-track {
+  height: 8px; background: #1e2130; border-radius: 4px;
+  position: relative; overflow: visible;
+}
+.bar-fill {
+  position: absolute; top: 0; height: 100%; border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.bar-fill.pos.target { background: #7c3aed; }
+.bar-fill.neg.target { background: #7c3aed; right: 50%; }
+.bar-fill.pos.other  { background: #374151; }
+.bar-fill.neg.other  { background: #374151; right: 50%; }
+.bar-center { position: absolute; left: 50%; top: -1px; bottom: -1px;
+              width: 1px; background: #374151; }
+.axis-val { font-size: 0.72rem; color: #6b7280; font-variant-numeric: tabular-nums; }
+.axis-val.target { color: #c4b5fd; }
+
+/* Feature heatmap */
+.feature-grid {
+  display: grid; grid-template-columns: repeat(16, 1fr);
+  gap: 2px; margin-top: 4px;
+}
+.feat-cell {
+  height: 14px; border-radius: 2px;
+  title: attr(data-title);
+  cursor: default;
+}
+
 .loading { text-align: center; padding: 60px; color: #6b7280; }
 .btn {
   padding: 12px 32px; border-radius: 10px; border: none;
@@ -138,44 +203,153 @@ async function loadFeed() {
 function renderFeed(items) {
   const container = document.getElementById('feed-container');
   container.innerHTML = '';
-
   items.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'feed-item';
-
-    if (item.used_original) {
-      el.innerHTML = `
-        <span class="topic-tag">${item.topic_name}</span>
-        <div class="comparison">
-          <div class="panel transformed" style="grid-column: 1/-1;">
-            <span class="panel-label">Already matches your style ✓</span>
-            ${escapeHtml(item.original_text)}
-          </div>
-        </div>
-      `;
-    } else {
-      const deltasHtml = Object.entries(item.deltas).map(([ax, d]) =>
-        `<span class="delta-chip">${ax.replace('_',' ')}: ${d.direction}</span>`
-      ).join('');
-
-      el.innerHTML = `
-        <span class="topic-tag">${item.topic_name}</span>
-        <div class="comparison">
-          <div class="panel original">
-            <span class="panel-label">Original</span>
-            ${escapeHtml(item.original_text)}
-          </div>
-          <div class="panel transformed">
-            <span class="panel-label">Adapted for you</span>
-            ${escapeHtml(item.transformed_text)}
-          </div>
-        </div>
-        <div class="changes">${item.changes_made}</div>
-        <div class="deltas">${deltasHtml}</div>
-      `;
-    }
-    container.appendChild(el);
+    container.appendChild(buildFeedItem(item));
   });
+}
+
+function buildFeedItem(item) {
+  const el = document.createElement('div');
+  el.className = 'feed-item';
+
+  if (item.used_original) {
+    el.innerHTML = `
+      <span class="topic-tag">${item.topic_name}</span>
+      <div class="comparison">
+        <div class="panel transformed" style="grid-column: 1/-1;">
+          <span class="panel-label">Already matches your style ✓</span>
+          ${escapeHtml(item.original_text)}
+        </div>
+      </div>`;
+    return el;
+  }
+
+  const targetAxes = Object.keys(item.deltas);
+  const deltasHtml = targetAxes.map(ax =>
+    `<span class="delta-chip">${ax.replace(/_/g,' ')}: ${item.deltas[ax].direction}</span>`
+  ).join('');
+
+  const saeId = `sae-${item.post_id}`;
+  el.innerHTML = `
+    <span class="topic-tag">${item.topic_name}</span>
+    <div class="comparison">
+      <div class="panel original">
+        <span class="panel-label">Original</span>
+        ${escapeHtml(item.original_text)}
+      </div>
+      <div class="panel transformed">
+        <span class="panel-label">Adapted for you</span>
+        ${escapeHtml(item.transformed_text)}
+      </div>
+    </div>
+    <div class="changes">${item.changes_made}</div>
+    <div class="deltas">${deltasHtml}</div>
+    <div class="sae-toggle" onclick="toggleSAE('${saeId}', this, ${JSON.stringify(item).replace(/'/g,"&#39;")})">
+      ▶ SAE Verification
+    </div>
+    <div class="sae-panel" id="${saeId}">
+      <span class="verdict loading">⏳ Loading Qwen2.5-7B…</span>
+    </div>`;
+  return el;
+}
+
+function toggleSAE(panelId, toggleEl, item) {
+  const panel = document.getElementById(panelId);
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    toggleEl.textContent = '▶ SAE Verification';
+    return;
+  }
+  panel.classList.add('open');
+  toggleEl.textContent = '▼ SAE Verification';
+
+  // Only fetch if not already done
+  if (panel.dataset.loaded) return;
+  panel.dataset.loaded = '1';
+
+  const targetAxes = Object.keys(item.deltas);
+  fetch('/api/sae-verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      original_text: item.original_text,
+      rewritten_text: item.transformed_text,
+      target_axes: targetAxes,
+      orig_post_id: item.post_id,
+    }),
+  })
+  .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+  .then(data => renderSAEPanel(panel, data, targetAxes))
+  .catch(err => {
+    panel.innerHTML = `<span style="color:#f87171">SAE verify failed: ${err}</span>`;
+  });
+}
+
+const AXIS_NAMES = ["reading_level","concreteness","narrativity","hedging",
+                    "tone","warmth","self_disclosure","casualness","humor"];
+
+function renderSAEPanel(panel, data, targetAxes) {
+  const targetSet = new Set(targetAxes);
+  const shifts = data.axis_shifts;
+  const maxAbs = Math.max(...Object.values(shifts).map(Math.abs), 0.01);
+
+  // ── Verdict ──────────────────────────────────────────────
+  const verdictClass = data.verdict === 'clean' ? 'clean' : 'leaked';
+  const verdictIcon  = data.verdict === 'clean' ? '✓' : '⚠';
+  const verdictText  = data.verdict === 'clean'
+    ? `Clean transform — target shift ${data.max_target_shift.toFixed(3)}, max other ${data.max_other_shift.toFixed(3)}`
+    : `Axes leaked — target ${data.max_target_shift.toFixed(3)}, unintended ${data.max_other_shift.toFixed(3)}`;
+
+  // ── Axis shift bars ────────────────────────────────────
+  const barsHtml = AXIS_NAMES.map(ax => {
+    const v = shifts[ax] || 0;
+    const isTarget = targetSet.has(ax);
+    const pct = Math.abs(v) / maxAbs * 48;   // max 48% of half-track
+    const cls = `${v >= 0 ? 'pos' : 'neg'} ${isTarget ? 'target' : 'other'}`;
+    const barStyle = v >= 0
+      ? `left:50%; width:${pct}%`
+      : `right:50%; width:${pct}%`;
+    return `
+      <div class="axis-row">
+        <span class="axis-name ${isTarget ? 'target' : ''}">${ax.replace(/_/g,' ')}</span>
+        <div class="bar-track">
+          <div class="bar-center"></div>
+          <div class="bar-fill ${cls}" style="${barStyle}"></div>
+        </div>
+        <span class="axis-val ${isTarget ? 'target' : ''}">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
+      </div>`;
+  }).join('');
+
+  // ── Feature heatmap (128 cells) ───────────────────────
+  const delta = data.delta_acts;
+  const maxDelta = Math.max(...delta.map(Math.abs), 0.001);
+  const cellsHtml = delta.map((d, i) => {
+    const intensity = Math.round(Math.abs(d) / maxDelta * 200);
+    const bg = d > 0
+      ? `rgba(139,92,246,${(intensity/200).toFixed(2)})`   // purple = activated more
+      : d < 0
+      ? `rgba(239,68,68,${(intensity/200).toFixed(2)})`    // red = activated less
+      : '#1e2130';
+    return `<div class="feat-cell" style="background:${bg}" title="F${i}: Δ${d.toFixed(3)}"></div>`;
+  }).join('');
+
+  // ── Top changed features ──────────────────────────────
+  const topHtml = data.top_feature_changes.slice(0, 8).map(f => {
+    const sign = f.delta > 0 ? '+' : '';
+    const col  = f.delta > 0 ? '#a78bfa' : '#f87171';
+    return `<span style="color:${col};margin-right:10px">F${f.feature} ${sign}${f.delta.toFixed(3)}</span>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="sae-section-title">Verdict</div>
+    <span class="verdict ${verdictClass}">${verdictIcon} ${verdictText}</span>
+
+    <div class="sae-section-title">Axis shifts — target in purple, others in gray</div>
+    <div class="axis-bars">${barsHtml}</div>
+
+    <div class="sae-section-title">Feature Δ heatmap (128 features · purple=gained, red=lost)</div>
+    <div class="feature-grid">${cellsHtml}</div>
+    <div style="margin-top:6px;color:#6b7280;font-size:0.72rem">Top changed: ${topHtml}</div>`;
 }
 
 async function loadMore() {
@@ -189,43 +363,7 @@ async function loadMore() {
   if (res.ok) {
     const data = await res.json();
     const container = document.getElementById('feed-container');
-    // Append new items
-    const tempDiv = document.createElement('div');
-    data.items.forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'feed-item';
-      if (item.used_original) {
-        el.innerHTML = `
-          <span class="topic-tag">${item.topic_name}</span>
-          <div class="comparison">
-            <div class="panel transformed" style="grid-column: 1/-1;">
-              <span class="panel-label">Already matches your style ✓</span>
-              ${escapeHtml(item.original_text)}
-            </div>
-          </div>
-        `;
-      } else {
-        const deltasHtml = Object.entries(item.deltas).map(([ax, d]) =>
-          `<span class="delta-chip">${ax.replace('_',' ')}: ${d.direction}</span>`
-        ).join('');
-        el.innerHTML = `
-          <span class="topic-tag">${item.topic_name}</span>
-          <div class="comparison">
-            <div class="panel original">
-              <span class="panel-label">Original</span>
-              ${escapeHtml(item.original_text)}
-            </div>
-            <div class="panel transformed">
-              <span class="panel-label">Adapted for you</span>
-              ${escapeHtml(item.transformed_text)}
-            </div>
-          </div>
-          <div class="changes">${item.changes_made}</div>
-          <div class="deltas">${deltasHtml}</div>
-        `;
-      }
-      container.appendChild(el);
-    });
+    data.items.forEach(item => container.appendChild(buildFeedItem(item)));
   }
   btn.textContent = 'Load More →';
 }

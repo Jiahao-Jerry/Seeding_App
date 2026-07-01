@@ -757,6 +757,60 @@ async def eval_results(session_id: str):
     return {"stats": stats, "responses": responses}
 
 
+# ── SAE rewrite verification ──────────────────────────────────────
+
+class SAEVerifyRequest(BaseModel):
+    original_text: str
+    rewritten_text: str
+    target_axes: list[str]
+    orig_post_id: str | None = None
+
+
+@app.post("/api/sae-verify")
+async def sae_verify(req: SAEVerifyRequest):
+    """
+    SAE-based rewrite verification.
+    Loads Qwen2.5-7B on first call (~14GB download if not cached).
+    Runs Qwen in a thread pool to avoid blocking the event loop.
+    """
+    import asyncio
+    from backend.sae_verify import verify_rewrite, load_sae
+
+    load_sae()   # fast — just weights, no Qwen yet
+
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(
+        None,
+        lambda: verify_rewrite(
+            req.original_text,
+            req.rewritten_text,
+            req.target_axes,
+            req.orig_post_id,
+        ),
+    )
+    return result
+
+
+@app.get("/api/sae-verify/status")
+async def sae_verify_status():
+    """Check whether Qwen is loaded and SAE weights are ready."""
+    from backend.sae_verify import _qwen_model, _sae
+    return {
+        "sae_loaded": _sae is not None,
+        "qwen_loaded": _qwen_model is not None,
+        "device": str(_get_device()) if _sae is not None else None,
+    }
+
+
+def _get_device():
+    import torch
+    if torch.backends.mps.is_available():
+        return "mps"
+    if torch.cuda.is_available():
+        return "cuda"
+    return "cpu"
+
+
 # ── Admin settings API ────────────────────────────────────────────
 
 @app.get("/api/admin/settings")
