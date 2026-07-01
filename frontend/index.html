@@ -374,19 +374,13 @@ function showComplete(data) {
   evalBtn.onclick = () => { window.location.href = `/eval.html?session=${sessionId}`; };
   screen.appendChild(evalBtn);
 
-  // Feed button — only show if admin setting allows
-  fetch('/api/admin/settings').then(r => r.json()).then(s => {
-    if (s.show_feed_button) {
-      const feedBtn2 = document.createElement('button');
-      feedBtn2.className = 'download-btn';
-      feedBtn2.style.marginTop = '8px';
-      feedBtn2.style.background = '#1f2937';
-      feedBtn2.style.border = '1px solid #374151';
-      feedBtn2.textContent = '→ See Transformed Feed (demo)';
-      feedBtn2.onclick = () => { window.location.href = `/feed.html?session=${sessionId}`; };
-      screen.appendChild(feedBtn2);
-    }
-  });
+  // Feed button — always shown
+  const feedBtn = document.createElement('button');
+  feedBtn.className = 'download-btn';
+  feedBtn.style.cssText = 'margin-top:8px; background:linear-gradient(135deg,#7c3aed,#4f46e5);';
+  feedBtn.textContent = '→ View Your Feed';
+  feedBtn.onclick = () => { window.location.href = `/feed.html?session=${sessionId}`; };
+  screen.appendChild(feedBtn);
 }
 
 async function downloadProfile() {
