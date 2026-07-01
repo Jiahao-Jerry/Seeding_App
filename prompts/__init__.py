@@ -201,3 +201,89 @@ def profile_update_user(current_profile: dict, shown_posts: list[dict],
         f"Style: {current_profile.get('style_prose') or '(first interaction — no data yet)'}\n\n"
         f"THIS INTERACTION:\n" + "\n\n".join(posts_desc)
     )
+
+
+# ─────────────────────────────────────────────────────────────────
+# TRANSFORM PROMPT (online, per rewrite)
+# ─────────────────────────────────────────────────────────────────
+
+def transform_system() -> str:
+    """System prompt for rewriting a post to match user delivery preferences."""
+    return """You rewrite social media posts to adapt their DELIVERY STYLE while preserving their SUBSTANCE.
+
+HARD CONSTRAINTS (never violate):
+1. Preserve the core claim, factual content, and the author's stance.
+2. Do not invent new arguments or remove key information.
+3. STAY WITHIN ±20% of the original word count. This is strict. If the original is 40 words, your rewrite must be 32–48 words. Restructure rather than expand.
+4. Preserve the textual register of the original. If it uses fragments, slang, internet shorthand, lowercase — keep that. Do not polish into formal prose. A messy post rewritten in a different style should still feel messy.
+
+STYLE SHIFT GUIDANCE:
+- You are changing HOW something is delivered along specific axes. Not cleaning it up.
+- For narrativity: restructure into story/anecdote form WITHIN the same length. Cut filler to make room for framing.
+- For tone: shift the emotional temperature without adding hedges or qualifiers that inflate word count.
+- Do NOT default to first-person "I" framing. Narrative can be observational, second-person, or scene-setting without "I started..." or "I was thinking..."
+- The result should read like someone with a DIFFERENT style wrote the SAME post on the SAME platform. Not like an editor rewrote it for a magazine.
+
+Return JSON:
+{
+  "rewritten_text": "<the transformed post>",
+  "changes_made": "<1-2 sentences: what you changed and why it fits>",
+  "additive_material_added": <true/false — did you introduce framing/material beyond the original?>,
+  "confidence": <0.0-1.0 — how confident the original claim/facts are intact>
+}"""
+
+
+def transform_user(original_text: str, deltas: dict) -> str:
+    """User message for rewriting a post along specified axis deltas."""
+    from config.axes import AXES
+
+    def _axis_instruction(axis_name: str, delta: dict) -> str:
+        ax_def = next((a["definition"] for a in AXES if a["name"] == axis_name), "")
+        return (
+            f"- {axis_name.replace('_', ' ').title()} ({ax_def}): "
+            f"Currently {delta['current']:.2f}/1.0, target {delta['target']:.2f}/1.0. "
+            f"{delta['direction'].upper()} this quality."
+        )
+
+    instructions = "\n".join(_axis_instruction(ax, d) for ax, d in deltas.items())
+    word_count = len(original_text.split())
+
+    return (
+        f'ORIGINAL POST ({word_count} words):\n"{original_text}"\n\n'
+        f"STYLE SHIFT (focus on these {len(deltas)} dimension{'s' if len(deltas) > 1 else ''} only):\n"
+        f"{instructions}\n\n"
+        f"Rewrite this post in {word_count}±{max(5, word_count // 5)} words. "
+        f"Same substance, different delivery. Keep the original's register and platform feel."
+    )
+
+
+# ─────────────────────────────────────────────────────────────────
+# VERIFY PROMPT (online, substance check after rewrite)
+# ─────────────────────────────────────────────────────────────────
+
+def verify_system() -> str:
+    """System prompt for verifying that a rewrite preserves substance."""
+    return """You verify whether a rewritten post preserves the substance of the original.
+
+Compare the original and rewrite on these dimensions:
+1. Core claim/opinion — is it the same?
+2. Factual content — is anything added or removed?
+3. Author's stance — is the position unchanged?
+4. Key evidence/examples — are they preserved (even if rephrased)?
+
+Return JSON:
+{
+  "substance_preserved": <true/false>,
+  "style_shifted": <true/false — does the rewrite actually sound different?>,
+  "issues": "<describe any substance violations, or 'none'>",
+  "fidelity_score": <0.0-1.0 — 1.0 means perfect preservation>
+}"""
+
+
+def verify_user(original_text: str, rewritten_text: str) -> str:
+    """User message for substance verification."""
+    return (
+        f'ORIGINAL:\n"{original_text}"\n\n'
+        f'REWRITE:\n"{rewritten_text}"\n\n'
+        f"Verify substance preservation and style shift."
+    )

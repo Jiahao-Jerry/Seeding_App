@@ -47,7 +47,7 @@ from prompts import annotation_system, annotation_user
 CACHE_FILE  = APP_ROOT / SAE2_PAIRS_DIR / "pair_cache.jsonl"
 OUTPUT_FILE = APP_ROOT / SAE2_PAIRS_DIR / "synthetic_pairs.parquet"
 PURITY_THRESHOLD = 0.15   # max allowed shift on non-target axes
-CONCURRENCY      = 10
+CONCURRENCY      = 6      # ~48 pairs/min, saturates 200K TPM ceiling
 
 
 # ── Direction gate prompts ─────────────────────────────────────────────────────
@@ -95,16 +95,17 @@ def _save_cache(key: str, value: dict, cache: dict) -> None:
 # ── Single pair pipeline ───────────────────────────────────────────────────────
 
 async def _llm_json(client, system: str, user: str, max_tokens: int = 512) -> dict:
-    import anthropic
     for attempt in range(4):
         try:
-            resp = await client.messages.create(
-                model="claude-haiku-4-5-20251001",
+            resp = await client.chat.completions.create(
+                model="gpt-4o-mini",
                 max_tokens=max_tokens,
-                system=system,
-                messages=[{"role": "user", "content": user}],
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
             )
-            raw = resp.content[0].text.strip()
+            raw = resp.choices[0].message.content.strip()
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 if raw.startswith("json"):
@@ -185,7 +186,6 @@ async def _process_pair(
         if dir_key in cache:
             dir_result = cache[dir_key]
         else:
-            # Randomise A/B order to avoid position bias
             rng = np.random.default_rng(abs(hash(pair_id)) % (2**32))
             a_is_shifted = bool(rng.integers(0, 2))
             text_a = shifted_text if a_is_shifted else base_text
@@ -258,12 +258,12 @@ async def _process_pair(
 # ── Public API ─────────────────────────────────────────────────────────────────
 
 async def _run_all(tasks_args: list, concurrency: int) -> list[dict]:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY_UMICH_DYIMOD")
     if not api_key:
-        raise EnvironmentError("ANTHROPIC_API_KEY not set — add it to .env")
+        raise EnvironmentError("OPENAI_API_KEY_UMICH_DYIMOD not set — add it to .env")
 
-    import anthropic
-    client = anthropic.AsyncAnthropic(api_key=api_key)
+    from openai import AsyncOpenAI
+    client = AsyncOpenAI(api_key=api_key, max_retries=6)
     sem    = asyncio.Semaphore(concurrency)
     cache  = _load_cache()
 

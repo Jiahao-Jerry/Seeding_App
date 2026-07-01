@@ -5,8 +5,8 @@ Global configuration. All tunables in one place.
 # ── LLM ──────────────────────────────────────────────────────────
 LLM_PROVIDER = "openai"
 LLM_API_KEY_ENV = "OPENAI_API_KEY_UMICH_DYIMOD"  # key name in .env
-LLM_MODEL_ANNOTATION = "gpt-5.4-mini"  # offline annotation
-LLM_MODEL_PROFILE = "gpt-5.4-mini"  # online profile updates
+LLM_MODEL_ANNOTATION = "gpt-4o-mini"  # offline annotation
+LLM_MODEL_PROFILE = "gpt-4o-mini"  # online profile updates
 ANNOTATION_CONCURRENCY = 30  # parallel requests for annotation
 
 # ── Embedding (must match what produced embeddings.npy) ──────────

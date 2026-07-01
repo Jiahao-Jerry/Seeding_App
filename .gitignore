@@ -2,3 +2,11 @@
 __pycache__/
 **/__pycache__/
 *.pyc
+
+# Raw SAE2 training data (6GB) — not tracked in git
+# Processed data files in data/ (parquet, npy, npz) are tracked
+data/sae2/
+
+# Large binary artifacts
+*.pt
+*.pth

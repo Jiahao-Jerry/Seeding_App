@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Delivery — Seeding</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #0f1117; color: #e8eaf0;
+  min-height: 100vh; padding: 32px 16px;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.container { width: 100%; max-width: 1100px; }
+
+/* Header */
+.header {
+  text-align: center; margin-bottom: 32px;
+}
+.header h1 { font-size: 1.6rem; color: #d1d5db; margin-bottom: 4px; }
+.header p { font-size: 0.85rem; color: #6b7280; }
+
+/* Progress */
+.progress-wrap {
+  width: 100%; background: #1e2130; border-radius: 999px;
+  height: 5px; margin-bottom: 16px;
+}
+.progress-bar {
+  height: 100%; background: #4b5563;
+  border-radius: 999px; transition: width 0.4s;
+}
+
+/* Status */
+.status {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; font-size: 0.8rem; color: #6b7280;
+}
+.status .step { color: #d1d5db; font-weight: 600; }
+
+/* Instruction */
+.instruction {
+  text-align: center; margin-bottom: 24px;
+}
+.instruction h2 { font-size: 1.15rem; color: #e8eaf0; margin-bottom: 6px; }
+.instruction p { font-size: 0.85rem; color: #9ca3af; }
+
+/* Post grid — shelf mode */
+.post-grid {
+  display: grid; gap: 14px; margin-bottom: 32px;
+}
+.post-grid.shelf {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.post-grid.pair {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Post card */
+.post-card {
+  background: #1a1d2e; border: 2px solid #2a2d3e; border-radius: 14px;
+  padding: 20px; cursor: pointer; transition: all 0.15s;
+  line-height: 1.65; font-size: 0.9rem; color: #d1d5db;
+  position: relative; min-height: 140px;
+}
+.post-card:hover { border-color: #4b5563; background: #1c1f2e; transform: translateY(-2px); }
+.post-card.selected { border-color: #22c55e; background: #0f2918; }
+.post-card .topic-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 600;
+  color: #9ca3af; background: #1f2937; border-radius: 6px;
+  padding: 2px 8px; margin-bottom: 10px; text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.post-card .text { white-space: pre-wrap; word-break: break-word; }
+
+/* Confirm button */
+.confirm-wrap { text-align: center; margin-bottom: 32px; }
+.confirm-btn {
+  padding: 14px 48px; border-radius: 12px; border: none;
+  background: #374151; color: white;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  opacity: 0.4; pointer-events: none; transition: opacity 0.2s;
+}
+.confirm-btn.active { opacity: 1; pointer-events: auto; }
+
+/* Profile panel */
+.profile-panel {
+  background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 14px;
+  padding: 20px; margin-top: 24px;
+}
+.profile-panel h3 { font-size: 0.9rem; color: #d1d5db; margin-bottom: 12px; }
+.profile-section { margin-bottom: 14px; }
+.profile-section label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #6b7280; display: block; margin-bottom: 4px;
+}
+.profile-section .value {
+  font-size: 0.85rem; color: #d1d5db; line-height: 1.5;
+}
+
+/* Confidence bars */
+.conf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.conf-item { display: flex; align-items: center; gap: 8px; }
+.conf-item .label { font-size: 0.75rem; color: #9ca3af; min-width: 110px; }
+.conf-item .bar-bg {
+  flex: 1; height: 6px; background: #2a2d3e; border-radius: 3px; overflow: hidden;
+}
+.conf-item .bar-fill {
+  height: 100%; background: #4b5563; border-radius: 3px; transition: width 0.4s;
+}
+
+/* Complete screen */
+.complete { text-align: center; padding: 40px 0; }
+.complete h2 { font-size: 1.4rem; color: #22c55e; margin-bottom: 12px; }
+.complete .download-btn {
+  padding: 14px 36px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, #22c55e, #16a34a); color: white;
+  font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px;
+}
+
+/* Hidden */
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1></h1>
+    <p></p>
+    <label style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.75rem;color:#6b7280;cursor:pointer;">
+      <input type="checkbox" id="dev-toggle" onchange="toggleDevMode()" style="accent-color:#4b5563;">
+      Show system details
+    </label>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+
+  <div class="status dev-only">
+    <span class="step" id="step-label">Starting...</span>
+    <span id="mode-label"></span>
+  </div>
+
+  <div class="instruction" id="instruction">
+    <h2 id="instr-title">Pick posts you'd engage with</h2>
+    <p id="instr-hint">Tap any posts that catch your interest, then confirm.</p>
+  </div>
+
+  <div class="post-grid shelf" id="post-grid"></div>
+
+  <div class="confirm-wrap">
+    <button class="confirm-btn" id="confirm-btn" onclick="confirmChoices()">
+      Confirm Selection →
+    </button>
+  </div>
+
+  <!-- Profile (dev-only, shown after first interaction) -->
+  <div class="profile-panel hidden dev-only" id="profile-panel">
+    <h3>Your Evolving Profile</h3>
+    <div class="profile-section">
+      <label>Topics</label>
+      <div class="value" id="profile-topics">—</div>
+    </div>
+    <div class="profile-section">
+      <label>Style Preferences</label>
+      <div class="value" id="profile-style">—</div>
+    </div>
+    <div class="profile-section">
+      <label>Confidence</label>
+      <div class="conf-grid" id="conf-grid"></div>
+    </div>
+  </div>
+
+  <!-- Complete screen -->
+  <div class="complete hidden" id="complete-screen">
+    <h2>✓ Profile Complete</h2>
+    <p>We've learned enough about your preferences.</p>
+    <div class="profile-panel" id="final-profile"></div>
+    <button class="download-btn" onclick="downloadProfile()">⬇ Download Profile</button>
+  </div>
+</div>
+
+<script>
+const API = '';  // same origin
+let sessionId = null;
+let currentPosts = [];
+let selectedIds = new Set();
+let DEV_MODE = new URLSearchParams(window.location.search).has('dev');
+
+// Sync checkbox with URL param on load
+if (DEV_MODE) document.getElementById('dev-toggle').checked = true;
+applyDevMode();
+
+function toggleDevMode() {
+  DEV_MODE = document.getElementById('dev-toggle').checked;
+  applyDevMode();
+}
+
+function applyDevMode() {
+  document.querySelectorAll('.dev-only').forEach(el => {
+    el.style.display = DEV_MODE ? '' : 'none';
+  });
+}
+
+// ── Start ────────────────────────────────────────────────────────
+async function startSession() {
+  const res = await fetch(`${API}/api/session/start`, { method: 'POST' });
+  const data = await res.json();
+  sessionId = data.session_id;
+  renderPosts(data.posts, data.action);
+}
+
+// ── Render posts ─────────────────────────────────────────────────
+function renderPosts(posts, action) {
+  currentPosts = posts;
+  selectedIds.clear();
+  updateConfirmBtn();
+
+  const grid = document.getElementById('post-grid');
+  grid.innerHTML = '';
+  grid.className = `post-grid ${action.mode === 'pair' ? 'pair' : 'shelf'}`;
+
+  if (action.mode === 'pair') {
+    document.getElementById('instr-title').textContent = 'Pick the one you\'d rather read.';
+    document.getElementById('instr-hint').textContent = '';
+    if (DEV_MODE) {
+      document.getElementById('mode-label').textContent =
+        `Probing: ${action.target_axis.replace('_', ' ')}`;
+    }
+  } else {
+    document.getElementById('instr-title').textContent = 'Tap any posts that catch your interest.';
+    document.getElementById('instr-hint').textContent = '';
+    if (DEV_MODE) {
+      document.getElementById('mode-label').textContent = 'Mode A: Topic discovery';
+    }
+  }
+
+  posts.forEach(post => {
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.dataset.id = post.post_id;
+    const topicHtml = DEV_MODE
+      ? `<span class="topic-tag">${post.topic_name}</span>`
+      : '';
+    card.innerHTML = `
+      ${topicHtml}
+      <div class="text">${escapeHtml(post.text)}</div>
+    `;
+    card.onclick = () => toggleCard(card, post.post_id, action.mode);
+    grid.appendChild(card);
+  });
+}
+
+function toggleCard(card, postId, mode) {
+  if (mode === 'pair') {
+    // In pair mode, only one can be selected
+    document.querySelectorAll('.post-card').forEach(c => c.classList.remove('selected'));
+    selectedIds.clear();
+    selectedIds.add(postId);
+    card.classList.add('selected');
+  } else {
+    if (selectedIds.has(postId)) {
+      selectedIds.delete(postId);
+      card.classList.remove('selected');
+    } else {
+      selectedIds.add(postId);
+      card.classList.add('selected');
+    }
+  }
+  updateConfirmBtn();
+}
+
+function updateConfirmBtn() {
+  const btn = document.getElementById('confirm-btn');
+  btn.classList.toggle('active', selectedIds.size > 0);
+}
+
+// ── Confirm & interact ───────────────────────────────────────────
+async function confirmChoices() {
+  if (selectedIds.size === 0) return;
+
+  const btn = document.getElementById('confirm-btn');
+  btn.textContent = 'Updating...';
+  btn.classList.remove('active');
+
+  const allShownIds = currentPosts.map(p => p.post_id);
+
+  const res = await fetch(`${API}/api/session/interact`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_id: sessionId,
+      chosen_post_ids: [...selectedIds],
+      shown_post_ids: allShownIds,
+    }),
+  });
+  const data = await res.json();
+
+  // Update profile display
+  updateProfilePanel(data.profile, data.confidence);
+  updateProgress(data);
+
+  if (data.is_complete) {
+    showComplete(data);
+    return;
+  }
+
+  // Render next round
+  btn.textContent = 'Confirm Selection →';
+  renderPosts(data.posts, data.action);
+}
+
+// ── Profile panel ────────────────────────────────────────────────
+function updateProfilePanel(profile, confidence) {
+  if (!DEV_MODE) return;
+  const panel = document.getElementById('profile-panel');
+  panel.classList.remove('hidden');
+
+  document.getElementById('profile-topics').textContent = profile.topics_prose || '—';
+  document.getElementById('profile-style').textContent = profile.style_prose || '—';
+
+  const confGrid = document.getElementById('conf-grid');
+  confGrid.innerHTML = '';
+
+  // Topic confidences
+  for (const [topic, conf] of Object.entries(confidence.topics || {})) {
+    confGrid.innerHTML += confItem(topic, conf);
+  }
+  // Axis confidences
+  for (const [axis, conf] of Object.entries(confidence.axes || {})) {
+    confGrid.innerHTML += confItem(axis.replace('_', ' '), conf);
+  }
+}
+
+function confItem(label, value) {
+  const pct = Math.round(value * 100);
+  return `<div class="conf-item">
+    <span class="label">${label}</span>
+    <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+function updateProgress(data) {
+  // Estimate progress from step count / max steps
+  const step = data.confidence ? Object.keys(data.confidence.topics || {}).length : 0;
+  document.getElementById('step-label').textContent = `Step ${step + 1}`;
+  // Simple progress based on confidence coverage
+  const axes = Object.values(data.confidence?.axes || {});
+  const avgConf = axes.length ? axes.reduce((a, b) => a + b, 0) / axes.length : 0;
+  document.getElementById('progress-bar').style.width = `${Math.round(avgConf * 100)}%`;
+}
+
+// ── Complete ─────────────────────────────────────────────────────
+function showComplete(data) {
+  document.getElementById('post-grid').classList.add('hidden');
+  document.getElementById('confirm-btn').classList.add('hidden');
+  document.getElementById('instruction').classList.add('hidden');
+
+  const screen = document.getElementById('complete-screen');
+  screen.classList.remove('hidden');
+  screen.querySelector('.profile-panel').innerHTML = `
+    <h3>Final Profile</h3>
+    <div class="profile-section"><label>Topics</label>
+      <div class="value">${data.profile.topics_prose}</div></div>
+    <div class="profile-section"><label>Style</label>
+      <div class="value">${data.profile.style_prose}</div></div>
+  `;
+
+  // Add evaluation button (always shown)
+  const evalBtn = document.createElement('button');
+  evalBtn.className = 'download-btn';
+  evalBtn.style.marginTop = '12px';
+  evalBtn.style.background = '#374151';
+  evalBtn.textContent = '→ Start Evaluation';
+  evalBtn.onclick = () => { window.location.href = `/eval.html?session=${sessionId}`; };
+  screen.appendChild(evalBtn);
+
+  // Feed button — only show if admin setting allows
+  fetch('/api/admin/settings').then(r => r.json()).then(s => {
+    if (s.show_feed_button) {
+      const feedBtn2 = document.createElement('button');
+      feedBtn2.className = 'download-btn';
+      feedBtn2.style.marginTop = '8px';
+      feedBtn2.style.background = '#1f2937';
+      feedBtn2.style.border = '1px solid #374151';
+      feedBtn2.textContent = '→ See Transformed Feed (demo)';
+      feedBtn2.onclick = () => { window.location.href = `/feed.html?session=${sessionId}`; };
+      screen.appendChild(feedBtn2);
+    }
+  });
+}
+
+async function downloadProfile() {
+  const res = await fetch(`${API}/api/session/${sessionId}/profile`);
+  const data = await res.json();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `profile_${sessionId.slice(0,8)}.json`;
+  a.click();
+}
+
+// ── Utils ────────────────────────────────────────────────────────
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+startSession();
+</script>
+</body>
+</html>

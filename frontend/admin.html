@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecMod — Admin Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f14; color: #e4e4e7; min-height: 100vh; padding: 24px; }
+
+.container { max-width: 700px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 8px; }
+.subtitle { color: #9ca3af; margin-bottom: 32px; }
+
+.section { background: #1a1a24; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.section h2 { font-size: 1rem; color: #d1d5db; margin-bottom: 16px; font-weight: 600; }
+
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid #2a2a3a;
+}
+.setting-row:last-child { border-bottom: none; }
+
+.setting-label { flex: 1; }
+.setting-label .name { font-weight: 500; font-size: 0.9rem; }
+.setting-label .desc { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
+
+.setting-control { margin-left: 16px; }
+.setting-control input[type="number"] {
+  width: 60px; padding: 4px 8px; border-radius: 6px;
+  border: 1px solid #3a3a4a; background: #0f0f14; color: #e4e4e7;
+  font-size: 0.9rem; text-align: center;
+}
+.setting-control input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: #4b5563;
+}
+
+.save-btn {
+  display: block; width: 100%; padding: 12px;
+  background: #374151;
+  color: white; border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 500; cursor: pointer;
+  margin-top: 24px; transition: opacity 0.2s;
+}
+.save-btn:hover { opacity: 0.9; }
+.save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.status { text-align: center; margin-top: 12px; font-size: 0.85rem; color: #6b7280; }
+.status.success { color: #34d399; }
+.status.error { color: #f87171; }
+
+.nav { margin-bottom: 24px; }
+.nav a { color: #9ca3af; text-decoration: none; font-size: 0.9rem; }
+.nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav"><a href="/">← Back to app</a></div>
+  <h1>Admin Dashboard</h1>
+  <p class="subtitle">Control evaluation parameters. Changes apply to new sessions immediately.</p>
+
+  <div class="section">
+    <h2>Trial Construction</h2>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Type A trials (same-band)</div>
+        <div class="desc">Both posts at same relevance; one transformed</div>
+      </div>
+      <div class="setting-control"><input type="number" id="n_type_a" min="0" max="20"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Type B trials (reach test)</div>
+        <div class="desc">Transformed-mid vs original-near</div>
+      </div>
+      <div class="setting-control"><input type="number" id="n_type_b" min="0" max="20"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Type C trials (same-post)</div>
+        <div class="desc">Same content, original vs transformed. 0 = disabled</div>
+      </div>
+      <div class="setting-control"><input type="number" id="n_type_c" min="0" max="10"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Transformation</h2>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Max axes per post</div>
+        <div class="desc">1–2 = surgical and natural. More = robotic</div>
+      </div>
+      <div class="setting-control"><input type="number" id="max_axes" min="1" max="7"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Verify transformation</div>
+        <div class="desc">Run LLM substance check (doubles LLM calls, rejects bad rewrites)</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="verify_transform"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Gap threshold</div>
+        <div class="desc">Minimum axis gap to trigger transformation (0.0–1.0)</div>
+      </div>
+      <div class="setting-control"><input type="number" id="transform_threshold" min="0" max="1" step="0.05"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Post Selection</h2>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Prefer high style gap</div>
+        <div class="desc">Within a band, pick posts where transformation will be most visible</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="prefer_high_gap"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Diversify topics</div>
+        <div class="desc">Ensure trials cover multiple topics, not cluster in one</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="diversify_topics"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Results Display</h2>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Show axis breakdown</div>
+        <div class="desc">Per-axis win rates on the results screen</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="show_axis_breakdown"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Show band breakdown</div>
+        <div class="desc">Per-band stats on the results screen</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="show_band_breakdown"></div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Show feed button</div>
+        <div class="desc">Show "See Transformed Feed" demo button after seeding completes</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="show_feed_button"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Profile Learning</h2>
+    <div class="setting-row">
+      <div class="setting-label">
+        <div class="name">Update profile from eval choices</div>
+        <div class="desc">Feed evaluation preferences back into the user profile (online learning)</div>
+      </div>
+      <div class="setting-control"><input type="checkbox" id="update_profile_from_eval"></div>
+    </div>
+  </div>
+
+  <button class="save-btn" id="save-btn" onclick="save()">Save Settings</button>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+const API = '';
+const fields = [
+  {id: 'n_type_a', type: 'number'},
+  {id: 'n_type_b', type: 'number'},
+  {id: 'n_type_c', type: 'number'},
+  {id: 'max_axes', type: 'number'},
+  {id: 'verify_transform', type: 'bool'},
+  {id: 'transform_threshold', type: 'float'},
+  {id: 'prefer_high_gap', type: 'bool'},
+  {id: 'diversify_topics', type: 'bool'},
+  {id: 'show_axis_breakdown', type: 'bool'},
+  {id: 'show_band_breakdown', type: 'bool'},
+  {id: 'show_feed_button', type: 'bool'},
+  {id: 'update_profile_from_eval', type: 'bool'},
+];
+
+async function load() {
+  const res = await fetch(`${API}/api/admin/settings`);
+  const data = await res.json();
+  for (const f of fields) {
+    const el = document.getElementById(f.id);
+    if (f.type === 'bool') el.checked = data[f.id];
+    else el.value = data[f.id];
+  }
+}
+
+async function save() {
+  const payload = {};
+  for (const f of fields) {
+    const el = document.getElementById(f.id);
+    if (f.type === 'bool') payload[f.id] = el.checked;
+    else if (f.type === 'float') payload[f.id] = parseFloat(el.value);
+    else payload[f.id] = parseInt(el.value);
+  }
+
+  const res = await fetch(`${API}/api/admin/settings`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+
+  const status = document.getElementById('status');
+  if (res.ok) {
+    status.textContent = '✓ Settings saved';
+    status.className = 'status success';
+  } else {
+    status.textContent = '✗ Failed to save';
+    status.className = 'status error';
+  }
+  setTimeout(() => { status.textContent = ''; }, 3000);
+}
+
+load();
+</script>
+</body>
+</html>
