@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: seeding-app
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY_UMICH_DYIMOD
+        sync: false   # set manually in Render dashboard
+    healthCheckPath: /health

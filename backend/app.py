@@ -41,7 +41,6 @@ app.add_middleware(
 
 # ── Data loading ─────────────────────────────────────────────────
 DATA_DIR = Path(__file__).parent.parent / "data"
-SAE_VARIANT_DIR = Path(__file__).parent.parent / "data/sae2/variants/qwen24_knn_k25_l0004"
 
 _corpus: pd.DataFrame | None = None
 _pairs: pd.DataFrame | None = None
@@ -69,13 +68,12 @@ def get_data():
         _embeddings = np.load(emb_path) if emb_path.exists() else None
 
         # SAE: feature activations (qwen24_knn_k25_l0004, 128 features)
-        sae_acts_path = SAE_VARIANT_DIR / "feature_activations.npy"
+        # Row order matches annotated_posts.parquet (same 9500-post corpus)
+        sae_acts_path = DATA_DIR / "sae_activations.npy"
         ridge_path = DATA_DIR / "sae_ridge_models.npz"
-        if sae_acts_path.exists():
+        if sae_acts_path.exists() and _corpus is not None:
             _sae_acts = np.load(sae_acts_path).astype(np.float32)
-            # Row order matches dataset.parquet — build pid → row index
-            sae_dataset = pd.read_parquet(Path(__file__).parent.parent / "data/sae2/dataset.parquet")
-            _sae_pid_to_row = {str(p): i for i, p in enumerate(sae_dataset["post_id"].astype(str))}
+            _sae_pid_to_row = {str(p): i for i, p in enumerate(_corpus["post_id"].astype(str))}
         if ridge_path.exists():
             npz = np.load(ridge_path)
             axes = ["reading_level", "concreteness", "narrativity", "hedging",
@@ -742,6 +740,11 @@ async def update_admin_settings(updates: dict):
     from config.admin import update_settings
     settings = update_settings(**updates)
     return settings.to_dict()
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 
 # ── Serve frontend ───────────────────────────────────────────────
