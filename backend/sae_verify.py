@@ -9,9 +9,12 @@ Pipeline:
 Verdict: transform is "clean" if target axes dominate the shift.
 """
 
+import threading
 import numpy as np
 import torch
 from pathlib import Path
+
+
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 SAE_PATH = DATA_DIR / "sae2/variants/qwen24_knn_k25_l0004/sae_model.pt"
@@ -36,6 +39,8 @@ _corpus_pid_to_row: dict | None = None
 _qwen_model = None
 _qwen_tok = None
 _device: torch.device | None = None
+_qwen_load_lock = threading.Lock()       # prevents double-load from concurrent callers
+_qwen_inference_lock = threading.Lock()  # MPS can't handle concurrent Qwen inference
 
 
 # ── Device ───────────────────────────────────────────────────────
@@ -79,37 +84,36 @@ def load_sae():
 
 def load_qwen():
     global _qwen_model, _qwen_tok
-    if _qwen_model is not None:
+    if _qwen_model is not None:  # fast path — no lock needed once loaded
         return
-
-    from transformers import AutoTokenizer, AutoModel
-    device = _get_device()
-    dtype = torch.float16 if device.type in ("mps", "cuda") else torch.float32
-
-    print(f"[sae_verify] Loading {QWEN_MODEL_ID} on {device} ({dtype}) …")
-    _qwen_tok = AutoTokenizer.from_pretrained(QWEN_MODEL_ID)
-    _qwen_model = AutoModel.from_pretrained(QWEN_MODEL_ID, torch_dtype=dtype)
-    _qwen_model = _qwen_model.to(device)
-    _qwen_model.eval()
-    print(f"[sae_verify] Qwen loaded.")
+    with _qwen_load_lock:
+        if _qwen_model is not None:  # double-check inside lock
+            return
+        from transformers import AutoTokenizer, AutoModel
+        device = _get_device()
+        dtype = torch.float16 if device.type in ("mps", "cuda") else torch.float32
+        print(f"[sae_verify] Loading {QWEN_MODEL_ID} on {device} ({dtype}) …")
+        _qwen_tok = AutoTokenizer.from_pretrained(QWEN_MODEL_ID)
+        _qwen_model = AutoModel.from_pretrained(QWEN_MODEL_ID, torch_dtype=dtype)
+        _qwen_model = _qwen_model.to(device)
+        _qwen_model.eval()
+        print(f"[sae_verify] Qwen loaded.")
 
 
 # ── Core encode ───────────────────────────────────────────────────
 
 def _get_hidden(text: str) -> np.ndarray:
     """Mean-pool Qwen2.5-7B layer-24 hidden states over tokens."""
-    load_qwen()
+    load_qwen()  # thread-safe via _qwen_load_lock
     device = _get_device()
-
-    inputs = _qwen_tok(
-        text, return_tensors="pt", truncation=True, max_length=512
-    ).to(device)
-
-    with torch.no_grad():
-        out = _qwen_model(**inputs, output_hidden_states=True)
-
-    h = out.hidden_states[QWEN_LAYER]   # (1, seq_len, 3584)
-    hidden = h[0].mean(dim=0).float().cpu().numpy()  # (3584,)
+    with _qwen_inference_lock:  # serialize MPS inference
+        inputs = _qwen_tok(
+            text, return_tensors="pt", truncation=True, max_length=512
+        ).to(device)
+        with torch.no_grad():
+            out = _qwen_model(**inputs, output_hidden_states=True)
+        h = out.hidden_states[QWEN_LAYER]   # (1, seq_len, 3584)
+        hidden = h[0].mean(dim=0).float().cpu().numpy()  # (3584,)
     return hidden
 
 

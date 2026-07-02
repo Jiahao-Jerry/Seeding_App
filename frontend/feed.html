@@ -117,16 +117,33 @@ body {
 .axis-val { font-size: 0.72rem; color: #6b7280; font-variant-numeric: tabular-nums; }
 .axis-val.target { color: #c4b5fd; }
 
-/* Feature heatmap */
-.feature-grid {
-  display: grid; grid-template-columns: repeat(16, 1fr);
-  gap: 2px; margin-top: 4px;
+/* Target quality rows */
+.target-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.target-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 8px; font-size: 0.78rem;
 }
-.feat-cell {
-  height: 14px; border-radius: 2px;
-  title: attr(data-title);
-  cursor: default;
+.target-row.hit  { background: #052e16; border: 1px solid #166534; }
+.target-row.miss { background: #1c1403; border: 1px solid #92400e; }
+.target-row.weak { background: #1a1a2e; border: 1px solid #374151; }
+.target-icon  { font-size: 0.9rem; width: 16px; flex-shrink: 0; }
+.target-label { color: #c4b5fd; font-weight: 600; min-width: 110px; }
+.target-desc  { color: #9ca3af; flex: 1; }
+.target-val   { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.target-row.hit  .target-val { color: #4ade80; }
+.target-row.miss .target-val { color: #fbbf24; }
+.target-row.weak .target-val { color: #6b7280; }
+
+/* Leakage rows */
+.leak-rows { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.leak-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px; border-radius: 6px; font-size: 0.76rem;
+  background: #1c140380; border: 1px solid #92400e40; color: #d1a45a;
 }
+.leak-label { min-width: 110px; font-weight: 500; }
+.leak-val   { margin-left: auto; font-variant-numeric: tabular-nums; }
+.no-leak    { color: #374151; font-size: 0.76rem; font-style: italic; padding: 4px 0; }
 
 .loading { text-align: center; padding: 60px; color: #6b7280; }
 .btn {
@@ -285,7 +302,7 @@ function toggleSAE(panelId, toggleEl, item) {
     }),
   })
   .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(t)))
-  .then(data => renderSAEPanel(panel, data, targetAxes))
+  .then(data => renderSAEPanel(panel, data, targetAxes, item.deltas))
   .catch(err => {
     panel.dataset.loaded = '';  // allow retry
     panel.innerHTML = `<span style="color:#f87171">SAE verify failed: ${err}</span>`;
@@ -295,68 +312,80 @@ function toggleSAE(panelId, toggleEl, item) {
 const AXIS_NAMES = ["reading_level","concreteness","narrativity","hedging",
                     "tone","warmth","self_disclosure","casualness","humor"];
 
-function renderSAEPanel(panel, data, targetAxes) {
+function renderSAEPanel(panel, data, targetAxes, deltas) {
   const targetSet = new Set(targetAxes);
   const shifts = data.axis_shifts;
   const maxAbs = Math.max(...Object.values(shifts).map(Math.abs), 0.01);
 
-  // ── Verdict ──────────────────────────────────────────────
+  // ── Verdict ───────────────────────────────────────────
   const verdictClass = data.verdict === 'clean' ? 'clean' : 'leaked';
   const verdictIcon  = data.verdict === 'clean' ? '✓' : '⚠';
-  const verdictText  = data.verdict === 'clean'
-    ? `Clean transform — target shift ${data.max_target_shift.toFixed(3)}, max other ${data.max_other_shift.toFixed(3)}`
-    : `Axes leaked — target ${data.max_target_shift.toFixed(3)}, unintended ${data.max_other_shift.toFixed(3)}`;
+  const verdictText  = data.verdict === 'clean' ? 'Good rewrite' : 'Axis leakage detected';
 
-  // ── Axis shift bars ────────────────────────────────────
+  // ── Target axis quality ───────────────────────────────
+  const THRESHOLD = 0.03;
+  const targetRowsHtml = targetAxes.map(ax => {
+    const shift = shifts[ax] || 0;
+    const intended = deltas[ax]?.direction;  // "increase" or "decrease"
+    const sign = shift >= 0 ? '+' : '';
+    const movedRight = intended === 'increase' ? shift > THRESHOLD
+                     : intended === 'decrease' ? shift < -THRESHOLD
+                     : Math.abs(shift) > THRESHOLD;
+    const strong = Math.abs(shift) > THRESHOLD;
+    const cls  = movedRight ? 'hit' : strong ? 'miss' : 'weak';
+    const icon = movedRight ? '✓' : strong ? '✗' : '~';
+    const desc = intended
+      ? `targeted ${intended}` + (movedRight ? ', delivered' : ', did not deliver')
+      : 'no expected direction';
+    return `<div class="target-row ${cls}">
+      <span class="target-icon">${icon}</span>
+      <span class="target-label">${ax.replace(/_/g,' ')}</span>
+      <span class="target-desc">${desc}</span>
+      <span class="target-val">${sign}${shift.toFixed(3)}</span>
+    </div>`;
+  }).join('');
+
+  // ── Unintended shifts ─────────────────────────────────
+  const LEAK_THRESHOLD = 0.08;
+  const leaks = AXIS_NAMES.filter(ax => !targetSet.has(ax) && Math.abs(shifts[ax] || 0) > LEAK_THRESHOLD);
+  const leakHtml = leaks.length === 0
+    ? `<div class="no-leak">No significant unintended shifts</div>`
+    : leaks.map(ax => {
+        const v = shifts[ax];
+        return `<div class="leak-row">
+          <span class="leak-label">${ax.replace(/_/g,' ')}</span>
+          <span class="leak-val">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
+        </div>`;
+      }).join('');
+
+  // ── Axis shift bars (all axes) ────────────────────────
   const barsHtml = AXIS_NAMES.map(ax => {
     const v = shifts[ax] || 0;
     const isTarget = targetSet.has(ax);
-    const pct = Math.abs(v) / maxAbs * 48;   // max 48% of half-track
+    const pct = Math.abs(v) / maxAbs * 48;
     const cls = `${v >= 0 ? 'pos' : 'neg'} ${isTarget ? 'target' : 'other'}`;
-    const barStyle = v >= 0
-      ? `left:50%; width:${pct}%`
-      : `right:50%; width:${pct}%`;
-    return `
-      <div class="axis-row">
-        <span class="axis-name ${isTarget ? 'target' : ''}">${ax.replace(/_/g,' ')}</span>
-        <div class="bar-track">
-          <div class="bar-center"></div>
-          <div class="bar-fill ${cls}" style="${barStyle}"></div>
-        </div>
-        <span class="axis-val ${isTarget ? 'target' : ''}">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
-      </div>`;
-  }).join('');
-
-  // ── Feature heatmap (128 cells) ───────────────────────
-  const delta = data.delta_acts;
-  const maxDelta = Math.max(...delta.map(Math.abs), 0.001);
-  const cellsHtml = delta.map((d, i) => {
-    const intensity = Math.round(Math.abs(d) / maxDelta * 200);
-    const bg = d > 0
-      ? `rgba(139,92,246,${(intensity/200).toFixed(2)})`   // purple = activated more
-      : d < 0
-      ? `rgba(239,68,68,${(intensity/200).toFixed(2)})`    // red = activated less
-      : '#1e2130';
-    return `<div class="feat-cell" style="background:${bg}" title="F${i}: Δ${d.toFixed(3)}"></div>`;
-  }).join('');
-
-  // ── Top changed features ──────────────────────────────
-  const topHtml = data.top_feature_changes.slice(0, 8).map(f => {
-    const sign = f.delta > 0 ? '+' : '';
-    const col  = f.delta > 0 ? '#a78bfa' : '#f87171';
-    return `<span style="color:${col};margin-right:10px">F${f.feature} ${sign}${f.delta.toFixed(3)}</span>`;
+    const barStyle = v >= 0 ? `left:50%; width:${pct}%` : `right:50%; width:${pct}%`;
+    return `<div class="axis-row">
+      <span class="axis-name ${isTarget ? 'target' : ''}">${ax.replace(/_/g,' ')}</span>
+      <div class="bar-track">
+        <div class="bar-center"></div>
+        <div class="bar-fill ${cls}" style="${barStyle}"></div>
+      </div>
+      <span class="axis-val ${isTarget ? 'target' : ''}">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
+    </div>`;
   }).join('');
 
   panel.innerHTML = `
-    <div class="sae-section-title">Verdict</div>
     <span class="verdict ${verdictClass}">${verdictIcon} ${verdictText}</span>
 
-    <div class="sae-section-title">Axis shifts — target in purple, others in gray</div>
-    <div class="axis-bars">${barsHtml}</div>
+    <div class="sae-section-title">Target axes</div>
+    <div class="target-rows">${targetRowsHtml}</div>
 
-    <div class="sae-section-title">Feature Δ heatmap (128 features · purple=gained, red=lost)</div>
-    <div class="feature-grid">${cellsHtml}</div>
-    <div style="margin-top:6px;color:#6b7280;font-size:0.72rem">Top changed: ${topHtml}</div>`;
+    <div class="sae-section-title">Unintended shifts</div>
+    ${leakHtml}
+
+    <div class="sae-section-title">All axes — target in purple</div>
+    <div class="axis-bars">${barsHtml}</div>`;
 }
 
 async function loadMore() {

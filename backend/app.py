@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -68,6 +68,13 @@ _sae_pid_to_row: dict | None = None        # post_id str → row index in _sae_a
 _sae_ridge: dict | None = None             # {axis: (coef, intercept)} for profile projection
 _sessions: dict[str, SessionState] = {}
 _shown_posts_cache: dict[str, list[dict]] = {}
+_sae_verify_cache: dict[str, dict] = {}  # key: "{post_id}:{hash(rewritten_text)}"
+
+
+def _sae_cache_key(post_id: str | None, rewritten_text: str) -> str | None:
+    if post_id is None:
+        return None
+    return f"{post_id}:{hash(rewritten_text)}"
 
 
 def get_data():
@@ -204,6 +211,9 @@ def get_shelf_posts(corpus: pd.DataFrame, action: dict, state: SessionState) -> 
     return [post_to_api_dict(row) for _, row in candidates.iterrows()]
 
 
+PAIR_POOL_SIZE = 20  # sample from top-N scoring fresh pairs to avoid showing the same posts
+
+
 def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
                    action: dict, state: SessionState,
                    cross_pairs: pd.DataFrame = None) -> list[dict]:
@@ -229,47 +239,43 @@ def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
         key = tuple(sorted([h, l]))
         if key in used_pairs:
             return False
-        # Prefer both posts unseen; accept one seen only as last resort
         return h not in seen_posts and l not in seen_posts
 
     def pair_is_acceptable(high_id, low_id):
-        """Fallback: at least the pair combo hasn't been shown."""
         key = tuple(sorted([str(high_id), str(low_id)]))
         return key not in used_pairs
+
+    def pick_from_pool(df_sorted, check_fn) -> object | None:
+        """Collect up to PAIR_POOL_SIZE passing pairs, then pick one at random."""
+        pool = []
+        for _, row in df_sorted.iterrows():
+            if check_fn(row["high_post_id"], row["low_post_id"]):
+                pool.append(row)
+                if len(pool) >= PAIR_POOL_SIZE:
+                    break
+        return random.choice(pool) if pool else None
 
     best_pair = None
 
     # Priority 1: cross-topic pairs, both posts fresh
     if cross_pairs is not None and not cross_pairs.empty:
         ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        for _, pair_row in ct_available.iterrows():
-            if pair_is_fresh(pair_row["high_post_id"], pair_row["low_post_id"]):
-                best_pair = pair_row
-                break
+        best_pair = pick_from_pool(ct_available, pair_is_fresh)
 
     # Priority 2: within-topic pairs, both posts fresh
     if best_pair is None and not pairs.empty:
         wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        for _, pair_row in wt_available.iterrows():
-            if pair_is_fresh(pair_row["high_post_id"], pair_row["low_post_id"]):
-                best_pair = pair_row
-                break
+        best_pair = pick_from_pool(wt_available, pair_is_fresh)
 
     # Priority 3: cross-topic pairs, at least the combo is new (one post may repeat)
     if best_pair is None and cross_pairs is not None and not cross_pairs.empty:
         ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        for _, pair_row in ct_available.iterrows():
-            if pair_is_acceptable(pair_row["high_post_id"], pair_row["low_post_id"]):
-                best_pair = pair_row
-                break
+        best_pair = pick_from_pool(ct_available, pair_is_acceptable)
 
     # Priority 4: within-topic pairs, at least the combo is new
     if best_pair is None and not pairs.empty:
         wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        for _, pair_row in wt_available.iterrows():
-            if pair_is_acceptable(pair_row["high_post_id"], pair_row["low_post_id"]):
-                best_pair = pair_row
-                break
+        best_pair = pick_from_pool(wt_available, pair_is_acceptable)
 
     # Final fallback: random unseen posts from corpus
     if best_pair is None:
@@ -517,8 +523,49 @@ class FeedItem(BaseModel):
     used_original: bool
 
 
+async def _precompute_sae_for_feed(items: list[dict]):
+    """
+    After the feed is returned, run SAE verification for every rewritten post
+    and cache the result so the per-post toggle responds instantly.
+    Waits for Qwen to finish loading (up to 3 min), then runs sequentially
+    to avoid MPS contention.
+    """
+    import asyncio
+    import backend.sae_verify as _sae_mod
+    from backend.sae_verify import verify_rewrite as _sae_verify, load_sae
+
+    # Wait for the startup warmup thread to finish loading Qwen
+    for _ in range(36):
+        if _sae_mod._qwen_model is not None:
+            break
+        await asyncio.sleep(5)
+    else:
+        print("[sae precompute] Qwen not ready after 3 min — skipping precompute")
+        return
+
+    load_sae()
+    loop = asyncio.get_event_loop()
+    for item in items:
+        if item["used_original"] or not item.get("deltas"):
+            continue
+        key = _sae_cache_key(item["post_id"], item["transformed_text"])
+        if key is None or key in _sae_verify_cache:
+            continue
+        target_axes = list(item["deltas"].keys())
+        try:
+            result = await loop.run_in_executor(
+                None,
+                lambda orig=item["original_text"], rw=item["transformed_text"],
+                       axes=target_axes, pid=item["post_id"]: _sae_verify(orig, rw, axes, pid),
+            )
+            _sae_verify_cache[key] = result
+            print(f"[sae precompute] cached {item['post_id']} verdict={result['verdict']}")
+        except Exception as e:
+            print(f"[sae precompute] failed for {item['post_id']}: {e}")
+
+
 @app.post("/api/feed")
-async def get_feed(req: FeedRequest):
+async def get_feed(req: FeedRequest, background_tasks: BackgroundTasks):
     """Get a feed of transformed posts based on the user's profile."""
     from backend.transform import transform_post
 
@@ -551,16 +598,19 @@ async def get_feed(req: FeedRequest):
 
     sample = candidates.sample(min(req.count, len(candidates)))
 
-    # Transform each post
-    feed_items = []
-    for _, row in sample.iterrows():
+    # Transform all posts in parallel
+    import asyncio as _asyncio
+    rows = list(sample.iterrows())
+
+    async def _transform_row(row):
         post_axes = json.loads(row["axes_json"]) if pd.notna(row.get("axes_json")) else {}
         result = await transform_post(
             row["text"], post_axes, user_prefs,
-            verify=False,  # skip LLM substance check for feed speed
+            verify=False,    # skip LLM substance check for feed speed
+            sae_gate=False,  # skip SAE gate; user can verify per-post via toggle
             orig_post_id=str(row["post_id"]),
         )
-        feed_items.append({
+        return {
             "post_id": str(row["post_id"]),
             "topic_name": row["topic_name"],
             "original_text": row["text"],
@@ -568,8 +618,11 @@ async def get_feed(req: FeedRequest):
             "changes_made": result["changes_made"],
             "deltas": result["deltas"],
             "used_original": result["used_original"],
-        })
+        }
 
+    feed_items = await _asyncio.gather(*[_transform_row(row) for _, row in rows])
+
+    background_tasks.add_task(_precompute_sae_for_feed, feed_items)
     return {"session_id": req.session_id, "items": feed_items}
 
 
@@ -792,25 +845,37 @@ class SAEVerifyRequest(BaseModel):
 async def sae_verify(req: SAEVerifyRequest):
     """
     SAE-based rewrite verification.
-    Loads Qwen2.5-7B on first call (~14GB download if not cached).
-    Runs Qwen in a thread pool to avoid blocking the event loop.
+    Returns cached result instantly if the feed already pre-computed it.
+    Otherwise runs Qwen on demand.
     """
     import asyncio
     from backend.sae_verify import verify_rewrite, load_sae
 
+    cache_key = _sae_cache_key(req.orig_post_id, req.rewritten_text)
+
+    # Fast path: background precompute already finished
+    if cache_key and cache_key in _sae_verify_cache:
+        return _sae_verify_cache[cache_key]
+
     load_sae()   # fast — just weights, no Qwen yet
 
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(
-        None,
-        lambda: verify_rewrite(
+    def _run():
+        # Re-check after acquiring the Qwen lock — background may have finished
+        # while we were waiting in the thread queue
+        if cache_key and cache_key in _sae_verify_cache:
+            return _sae_verify_cache[cache_key]
+        result = verify_rewrite(
             req.original_text,
             req.rewritten_text,
             req.target_axes,
             req.orig_post_id,
-        ),
-    )
-    return result
+        )
+        if cache_key:
+            _sae_verify_cache[cache_key] = result
+        return result
+
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, _run)
 
 
 @app.get("/api/sae-verify/status")
