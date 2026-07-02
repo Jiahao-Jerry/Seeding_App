@@ -26,7 +26,6 @@ AXIS_NAMES = [
     "reading_level", "concreteness", "narrativity", "hedging",
     "tone", "warmth", "self_disclosure", "casualness", "humor",
 ]
-KNN_K = 25
 QWEN_LAYER = 24
 QWEN_MODEL_ID = "Qwen/Qwen2.5-7B"
 QWEN_SCALE = 85.62510681152344   # mean L2 norm of training hidden states
@@ -119,20 +118,14 @@ def _get_hidden(text: str) -> np.ndarray:
 
 def _encode_sae(hidden: np.ndarray) -> np.ndarray:
     """
-    SAE encoder: normalize input → linear → top-k sparsity.
-    Scale matches training normalization (divide by mean L2 norm).
+    SAE encoder: normalize input → linear → ReLU.
+    Sparsity comes from L1 training, not top-k. KNN_K refers to the
+    kNN topic-removal preprocessing step, not inference sparsity.
     """
     load_sae()
     h_norm = hidden / QWEN_SCALE
     pre_acts = _sae["W_enc"] @ h_norm + _sae["b_enc"]   # (128,)
-    acts = np.maximum(0.0, pre_acts)                      # ReLU
-
-    # Top-k sparsity: keep only top KNN_K activations
-    if KNN_K < len(acts) and acts.max() > 0:
-        threshold = np.partition(acts, -KNN_K)[-KNN_K]
-        acts = np.where(acts >= threshold, acts, 0.0)
-
-    return acts.astype(np.float32)
+    return np.maximum(0.0, pre_acts).astype(np.float32)  # ReLU only
 
 
 def encode_text(text: str) -> np.ndarray:

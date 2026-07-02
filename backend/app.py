@@ -66,6 +66,7 @@ _embeddings: np.ndarray | None = None
 _sae_acts: np.ndarray | None = None        # (9500, 128) SAE feature activations
 _sae_pid_to_row: dict | None = None        # post_id str → row index in _sae_acts
 _sae_ridge: dict | None = None             # {axis: (coef, intercept)} for profile projection
+_word_counts: dict[str, int] = {}          # post_id str → word count
 _sessions: dict[str, SessionState] = {}
 _shown_posts_cache: dict[str, list[dict]] = {}
 _sae_verify_cache: dict[str, dict] = {}  # key: "{post_id}:{hash(rewritten_text)}"
@@ -78,7 +79,7 @@ def _sae_cache_key(post_id: str | None, rewritten_text: str) -> str | None:
 
 
 def get_data():
-    global _corpus, _pairs, _cross_pairs, _embeddings, _sae_acts, _sae_pid_to_row, _sae_ridge
+    global _corpus, _pairs, _cross_pairs, _embeddings, _sae_acts, _sae_pid_to_row, _sae_ridge, _word_counts
     if _corpus is None:
         corpus_path = Path(__file__).parent.parent / ANNOTATED_CORPUS_FILE
         pairs_path = Path(__file__).parent.parent / PAIRS_FILE
@@ -90,6 +91,7 @@ def get_data():
         _pairs = pd.read_parquet(pairs_path) if pairs_path.exists() else pd.DataFrame()
         _cross_pairs = pd.read_parquet(cross_path) if cross_path.exists() else pd.DataFrame()
         _embeddings = np.load(emb_path) if emb_path.exists() else None
+        _word_counts = dict(zip(_corpus["post_id"], _corpus["text"].str.split().str.len()))
 
         # SAE: feature activations (qwen24_knn_k25_l0004, 128 features)
         # Row order matches annotated_posts.parquet (same 9500-post corpus)
@@ -211,7 +213,8 @@ def get_shelf_posts(corpus: pd.DataFrame, action: dict, state: SessionState) -> 
     return [post_to_api_dict(row) for _, row in candidates.iterrows()]
 
 
-PAIR_POOL_SIZE = 20  # sample from top-N scoring fresh pairs to avoid showing the same posts
+PAIR_POOL_SIZE = 20   # sample from top-N scoring fresh pairs to avoid showing the same posts
+MAX_LENGTH_RATIO = 2.0  # skip pairs where one post is >2x longer than the other
 
 
 def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
@@ -235,21 +238,23 @@ def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
             used_pairs.add(tuple(sorted(shown)))
 
     def pair_is_fresh(high_id, low_id):
-        h, l = str(high_id), str(low_id)
-        key = tuple(sorted([h, l]))
-        if key in used_pairs:
-            return False
-        return h not in seen_posts and l not in seen_posts
+        key = tuple(sorted([high_id, low_id]))
+        return key not in used_pairs and high_id not in seen_posts and low_id not in seen_posts
 
     def pair_is_acceptable(high_id, low_id):
-        key = tuple(sorted([str(high_id), str(low_id)]))
-        return key not in used_pairs
+        return tuple(sorted([high_id, low_id])) not in used_pairs
 
     def pick_from_pool(df_sorted, check_fn) -> object | None:
-        """Collect up to PAIR_POOL_SIZE passing pairs, then pick one at random."""
+        """Collect up to PAIR_POOL_SIZE passing pairs, then pick one at random.
+        Skips pairs where one post is >MAX_LENGTH_RATIO times longer than the other."""
         pool = []
         for _, row in df_sorted.iterrows():
-            if check_fn(row["high_post_id"], row["low_post_id"]):
+            h, l = str(row["high_post_id"]), str(row["low_post_id"])
+            wh = _word_counts.get(h, 0)
+            wl = _word_counts.get(l, 0)
+            if wh > 0 and wl > 0 and max(wh, wl) / min(wh, wl) > MAX_LENGTH_RATIO:
+                continue
+            if check_fn(h, l):
                 pool.append(row)
                 if len(pool) >= PAIR_POOL_SIZE:
                     break
@@ -477,12 +482,11 @@ async def transform_endpoint(req: TransformRequest):
     else:
         raise HTTPException(400, "Provide either post_id or text")
 
-    # Get user preferences — SAE fingerprint takes priority over LLM-inferred confidence
     if req.session_id:
         state = _sessions.get(req.session_id)
         if not state:
             raise HTTPException(404, "Session not found")
-        user_prefs = state.sae_prefs if state.sae_prefs else state.confidence.get("axes", {})
+        user_prefs = state.confidence.get("axes", {})
     elif req.user_prefs:
         user_prefs = req.user_prefs
     else:
@@ -574,8 +578,7 @@ async def get_feed(req: FeedRequest, background_tasks: BackgroundTasks):
     if not state:
         raise HTTPException(404, "Session not found")
 
-    # SAE fingerprint takes priority over LLM-inferred confidence
-    user_prefs = state.sae_prefs if state.sae_prefs else state.confidence.get("axes", {})
+    user_prefs = state.confidence.get("axes", {})
     if not user_prefs:
         raise HTTPException(400, "Profile not ready — complete seeding first")
 
