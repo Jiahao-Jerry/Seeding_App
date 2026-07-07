@@ -28,7 +28,7 @@ from config.settings import (
 VARIANTS = [
     "qwen14_knn", "qwen16_knn", "qwen18_knn", "qwen20_knn", "qwen22_knn", "qwen24_knn", "qwen26_knn",
     "qwen24_raw", "qwen24_knn_l0004", "qwen24_knn_k25_l0004", "qwen24_knn_k25_l0004_f256",
-    "bge_raw", "bge_knn",
+    "bge_raw", "bge_knn", "qwen24_raw_topk4",
 ]
 TOP_K    = 10
 OUT_FILE = APP_ROOT / "docs" / "index.html"
@@ -119,11 +119,13 @@ def build_variant_meta(features: list[dict], variant: str, score: float | None =
     nov   = sum(1 for f in features if f["category"] == "novel_candidate")
     dead  = sum(1 for f in features if f["category"] == "dead")
     n     = len(features)
+    is_topk = meta.get("sparsity_mode") == "topk"
+    sparsity_label = f"top-k={meta.get('k')}" if is_topk else hp.get("l1_coef", "?")
     return {
         "config": {
             "space":   meta.get("space", "?"),
             "layer":   meta.get("layer", "-"),
-            "l1":      hp.get("l1_coef", meta.get("hparams", {}).get("l1_coef", "?")),
+            "l1":      sparsity_label,
             "k":       meta.get("knn_k", 20),
             "removal": meta.get("removal", "?"),
         },
@@ -132,7 +134,7 @@ def build_variant_meta(features: list[dict], variant: str, score: float | None =
         "density":  round(fl.get("mean_density_sample", 0.0), 3),
         "recon":    round(fl.get("recon", 0.0), 4),
         "sparsity": round(fl.get("sparsity", 0.0), 4),
-        "total":    round(fl.get("total", 0.0), 4),
+        "total":    round(fl.get("total", fl.get("recon", 0.0)), 4),
         "confirmed": conf,
         "partial":   part,
         "novel":     nov,
@@ -267,7 +269,7 @@ function updateStats(variant) {{
       <span class="cfg-chip">${{spaceLabel}}</span>
       <span class="cfg-chip">layer ${{layerLabel}}</span>
       <span class="cfg-chip">${{removalLabel}}</span>
-      <span class="cfg-chip">L1=${{c.l1}}</span>
+      <span class="cfg-chip">${{typeof c.l1 === 'string' && c.l1.startsWith('top-k') ? c.l1 : 'L1=' + c.l1}}</span>
     </div>
     <div class="stat-grid">
       <div class="stat-cell" style="grid-column:span 2;background:#1e2d1e"><div class="stat-label">Alignment Score</div><div class="stat-val" style="color:#5cb85c;font-size:18px">${{m.score !== null ? m.score.toFixed(4) : '—'}}</div></div>
