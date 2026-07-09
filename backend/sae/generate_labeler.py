@@ -28,7 +28,7 @@ from config.settings import (
 VARIANTS = [
     "qwen14_knn", "qwen16_knn", "qwen18_knn", "qwen20_knn", "qwen22_knn", "qwen24_knn", "qwen26_knn",
     "qwen24_raw", "qwen24_knn_l0004", "qwen24_knn_k25_l0004", "qwen24_knn_k25_l0004_f256",
-    "bge_raw", "bge_knn", "qwen24_raw_topk4", "qwen24_raw_topk10",
+    "bge_raw", "bge_knn", "qwen24_raw_topk4", "qwen24_raw_topk10", "qwen24_knn_k25_topk10",
 ]
 TOP_K    = 10
 OUT_FILE = APP_ROOT / "docs" / "index.html"
