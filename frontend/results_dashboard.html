@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eval Results — All Sessions</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #0f1117; color: #e8eaf0;
+  min-height: 100vh; padding: 32px 16px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 28px; }
+.header h1 { font-size: 1.5rem; color: #c4b5fd; margin-bottom: 4px; }
+.header p { font-size: 0.85rem; color: #6b7280; }
+
+.toolbar { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; }
+.refresh-btn, .reset-btn {
+  font-size: 0.8rem; color: #9ca3af;
+  background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 6px;
+  padding: 6px 14px; cursor: pointer;
+}
+.refresh-btn:hover { border-color: #7c3aed; color: #c4b5fd; }
+.reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+.summary-bar {
+  display: flex; gap: 14px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap;
+}
+.summary-stat { background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 12px; padding: 14px 22px; text-align: center; }
+.summary-stat .num { font-size: 1.6rem; font-weight: 700; color: #c4b5fd; font-variant-numeric: tabular-nums; }
+.summary-stat .lbl { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+
+.session-card {
+  background: #1a1d2e; border: 1px solid #2a2d3e; border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 14px;
+}
+.session-card .meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 12px; font-size: 0.75rem; color: #6b7280;
+}
+.session-card .meta .sid { font-family: ui-monospace, monospace; color: #9ca3af; }
+
+.kind-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
+.kind-label { min-width: 130px; color: #9ca3af; }
+.kind-bar-wrap { flex: 1; display: flex; align-items: center; gap: 8px; }
+.kind-bar { flex: 1; height: 8px; background: #12141f; border-radius: 4px; overflow: hidden; }
+.kind-bar-fill { height: 100%; }
+.kind-bar-fill.toward { background: #7dd3fc; }
+.kind-bar-fill.anti { background: #fb923c; }
+.kind-bar-fill.rescue { background: #4ade80; }
+.kind-pct { min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; color: #d1d5db; }
+.kind-n { font-size: 0.7rem; color: #4b5563; min-width: 46px; }
+
+.empty { text-align: center; color: #6b7280; padding: 60px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Eval Results — All Sessions</h1>
+    <p>Every completed 10-trial evaluation, collected automatically from anyone who used the link.</p>
+  </div>
+  <div class="toolbar">
+    <button class="refresh-btn" onclick="load()">↻ Refresh</button>
+    <button class="reset-btn" onclick="resetResults()">✕ Reset all results</button>
+  </div>
+  <div id="content"><div class="empty">Loading…</div></div>
+</div>
+
+<script>
+async function load() {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="empty">Loading…</div>';
+
+  const res = await fetch('/api/eval/all-results');
+  const data = await res.json();
+  const results = data.results || [];
+
+  if (!results.length) {
+    content.innerHTML = '<div class="empty">No completed sessions yet. Results appear here automatically as soon as someone finishes the 10-trial eval.</div>';
+    return;
+  }
+
+  // Aggregate summary bar across all sessions
+  const avg = (kind) => {
+    const vals = results.map(r => r.stats?.[kind]?.rewrite_win_rate ?? r.stats?.[kind]?.original_preferred_rate).filter(v => v !== undefined);
+    if (!vals.length) return null;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  };
+  const towardAvg = avg('toward_preference');
+  const antiAvg = results.map(r => r.stats?.anti_preference?.original_preferred_rate).filter(v => v !== undefined);
+  const antiAvgVal = antiAvg.length ? antiAvg.reduce((a,b)=>a+b,0)/antiAvg.length : null;
+  const rescueAvg = results.map(r => r.stats?.rescue?.rewrite_win_rate).filter(v => v !== undefined);
+  const rescueAvgVal = rescueAvg.length ? rescueAvg.reduce((a,b)=>a+b,0)/rescueAvg.length : null;
+
+  let html = `<div class="summary-bar">
+    <div class="summary-stat"><div class="num">${results.length}</div><div class="lbl">completed sessions</div></div>
+    ${towardAvg !== null ? `<div class="summary-stat"><div class="num">${Math.round(towardAvg*100)}%</div><div class="lbl">avg. standard win rate</div></div>` : ''}
+    ${antiAvgVal !== null ? `<div class="summary-stat"><div class="num">${Math.round(antiAvgVal*100)}%</div><div class="lbl">avg. bidirectional correct</div></div>` : ''}
+    ${rescueAvgVal !== null ? `<div class="summary-stat"><div class="num">${Math.round(rescueAvgVal*100)}%</div><div class="lbl">avg. rescue rate</div></div>` : ''}
+  </div>`;
+
+  for (const r of results) {
+    const t = new Date(r.completed_at);
+    const timeStr = isNaN(t) ? r.completed_at : t.toLocaleString();
+    const s = r.stats || {};
+
+    const row = (label, cls, n, pct) => pct === null ? '' : `
+      <div class="kind-row">
+        <span class="kind-label">${label}</span>
+        <div class="kind-bar-wrap">
+          <div class="kind-bar"><div class="kind-bar-fill ${cls}" style="width:${Math.round(pct*100)}%"></div></div>
+          <span class="kind-pct">${Math.round(pct*100)}%</span>
+        </div>
+        <span class="kind-n">n=${n}</span>
+      </div>`;
+
+    html += `<div class="session-card">
+      <div class="meta"><span class="sid">${r.session_id.slice(0,8)}</span><span>${timeStr}</span></div>
+      ${row('Standard', 'toward', s.toward_preference?.n, s.toward_preference?.rewrite_win_rate ?? null)}
+      ${row('Bidirectional check', 'anti', s.anti_preference?.n, s.anti_preference?.original_preferred_rate ?? null)}
+      ${row('Rescue check', 'rescue', s.rescue?.n, s.rescue?.rewrite_win_rate ?? null)}
+    </div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+async function resetResults() {
+  if (!confirm('Delete ALL collected eval results? This cannot be undone.')) return;
+  await fetch('/api/eval/all-results', { method: 'DELETE' });
+  load();
+}
+
+load();
+</script>
+</body>
+</html>

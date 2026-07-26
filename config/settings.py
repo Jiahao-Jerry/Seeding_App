@@ -39,6 +39,15 @@ CONFIDENCE_THRESHOLD = 0.65
 MAX_STEPS = 12
 SHELF_SIZE = 8  # posts shown in Mode A
 
+# Mode B (pair) axis-targeting: explore the weakest axis first for this many
+# rounds, then switch to reinforcing whichever still-unconfident axis is
+# CLOSEST to CONFIDENCE_THRESHOLD -- see decide_next_action(). Empirically,
+# spreading probes evenly across all 9 axes for the whole session (always
+# picking the weakest) left most axes stuck around 0.3-0.5 confidence,
+# never actually crossing 0.65, since there typically aren't enough of the
+# ~11 available pair-rounds to fully resolve every axis from a flat start.
+EXPLORE_ROUNDS = 5
+
 # ── SAE (Option 3: within-subcluster residuals on BGE-M3) ────────
 # Discovery instrument — finds candidate delivery axes beyond the 7 LLM ones.
 # Not used in the serving loop. Trained offline by m4_sae.py.

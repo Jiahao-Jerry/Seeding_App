@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluation — RecMod (new architecture)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #0f1117; color: #e8eaf0;
+  min-height: 100vh; padding: 32px 16px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.container { width: 100%; max-width: 960px; }
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 { font-size: 1.5rem; color: #c4b5fd; margin-bottom: 4px; }
+.header p { font-size: 0.85rem; color: #6b7280; }
+
+.dev-toggle {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  margin-bottom: 24px; font-size: 0.85rem; color: #9ca3af; cursor: pointer;
+  user-select: none;
+}
+
+.comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 20px;
+}
+.panel {
+  background: #1a1d2e; border: 2px solid #2a2d3e; border-radius: 14px;
+  padding: 22px; line-height: 1.65; font-size: 0.95rem;
+  white-space: pre-wrap; word-break: break-word; cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.panel:hover { border-color: #7c3aed; transform: translateY(-2px); }
+.panel.chosen { border-color: #22c55e; }
+
+.topic-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 600;
+  color: #8b5cf6; background: #1e1b4b; border-radius: 6px;
+  padding: 2px 8px; margin-bottom: 14px; text-transform: uppercase;
+}
+
+.dev-panel {
+  display: none; background: #12141f; border: 1px solid #2a2d3e;
+  border-radius: 10px; padding: 18px; font-size: 0.8rem; margin-bottom: 20px;
+}
+.dev-panel.open { display: block; }
+.dev-section-title {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #4b5563; margin: 14px 0 6px;
+}
+.dev-section-title:first-child { margin-top: 0; }
+
+.verdict {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-weight: 700;
+  font-size: 0.75rem; letter-spacing: 0.04em;
+}
+.verdict.clean { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+.verdict.leaked { background: #1c1403; color: #fbbf24; border: 1px solid #92400e; }
+
+.side-badge {
+  display: inline-block; font-size: 0.75rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 6px; background: #1e1b4b; color: #a78bfa;
+  margin-right: 8px;
+}
+
+.axis-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.axis-table td { padding: 4px 8px; font-size: 0.78rem; border-top: 1px solid #1e2130; }
+.axis-table td:first-child { color: #9ca3af; }
+.axis-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.axis-table tr.target td:first-child { color: #a78bfa; font-weight: 600; }
+.axis-table tr.target td:last-child { color: #c4b5fd; font-weight: 600; }
+
+.attempts-row { font-size: 0.76rem; color: #9ca3af; margin: 2px 0; }
+
+.loading { text-align: center; padding: 60px; color: #6b7280; }
+.instruction { text-align: center; margin-bottom: 20px; color: #9ca3af; font-size: 0.95rem; }
+
+.progress { text-align: center; font-size: 0.78rem; color: #6b7280; margin-bottom: 10px; letter-spacing: 0.03em; }
+
+.report { padding: 20px 0; }
+.report h2 { font-size: 1.3rem; color: #c4b5fd; text-align: center; margin-bottom: 6px; }
+.report .subtitle { text-align: center; color: #6b7280; font-size: 0.85rem; margin-bottom: 28px; }
+.report-headline {
+  text-align: center; margin-bottom: 32px;
+}
+.report-headline .big-number {
+  font-size: 3rem; font-weight: 700; color: #4ade80; font-variant-numeric: tabular-nums;
+}
+.report-headline .big-number.low { color: #fbbf24; }
+.report-headline .caption { color: #9ca3af; font-size: 0.85rem; margin-top: 4px; }
+
+.axis-report-table { width: 100%; border-collapse: collapse; }
+.axis-report-table th {
+  text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #6b7280; padding: 8px; border-bottom: 1px solid #2a2d3e;
+}
+.axis-report-table th:last-child, .axis-report-table td:last-child { text-align: right; }
+.axis-report-table td {
+  padding: 10px 8px; border-bottom: 1px solid #1e2130; font-size: 0.88rem;
+}
+.axis-report-table td:first-child { color: #d1d5db; text-transform: capitalize; }
+.win-rate-bar-wrap {
+  display: flex; align-items: center; gap: 10px; justify-content: flex-end;
+}
+.win-rate-bar {
+  width: 100px; height: 6px; background: #1e2130; border-radius: 3px; overflow: hidden;
+}
+.win-rate-bar-fill { height: 100%; background: #7c3aed; }
+.win-rate-value { font-variant-numeric: tabular-nums; min-width: 42px; text-align: right; color: #c4b5fd; }
+
+.trial-kind-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-weight: 700;
+  font-size: 0.75rem; letter-spacing: 0.03em; margin-bottom: 10px;
+}
+.trial-kind-badge.anti { background: #2a1608; color: #fb923c; border: 1px solid #7c3410; }
+.trial-kind-badge.toward { background: #0f172a; color: #7dd3fc; border: 1px solid #164e63; }
+.trial-kind-badge.rescue { background: #0f2918; color: #4ade80; border: 1px solid #166534; }
+
+.report-section-title {
+  font-size: 0.8rem; font-weight: 700; color: #d1d5db; margin: 28px 0 4px;
+}
+.report-section-hint { font-size: 0.78rem; color: #6b7280; margin-bottom: 14px; }
+
+.reset-btn {
+  font-size: 0.75rem; color: #9ca3af; background: #1a1d2e; border: 1px solid #2a2d3e;
+  border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: all 0.15s;
+  display: block; margin: 10px auto 0;
+}
+.reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Which would you rather read?</h1>
+    <p>New architecture — same post selection &amp; rewrite direction as your feed, shown blind.</p>
+    <button class="reset-btn" onclick="resetSession()">↺ Reset Session</button>
+  </div>
+
+  <label class="dev-toggle">
+    <input type="checkbox" id="dev-mode-toggle">
+    Dev mode — reveal which side is the rewrite
+  </label>
+
+  <p class="instruction">Click the one you'd rather read.</p>
+
+  <div id="trial-container"><div class="loading">Loading first pair…</div></div>
+</div>
+
+<script>
+const API = '';
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get('session');
+let devMode = false;
+let currentTrial = null;
+let choosing = false;
+
+// Generating + verifying a rewrite involves real LLM calls and can take
+// 15-50s (longer if the first attempt gets rejected and retries). Show
+// elapsed time so the page doesn't look frozen, and give up client-side
+// after 2 minutes rather than waiting forever on a stalled request.
+const LOAD_TIMEOUT_MS = 120000;
+
+document.getElementById('dev-mode-toggle').addEventListener('change', (e) => {
+  devMode = e.target.checked;
+  if (currentTrial && !currentTrial.done) renderTrial(currentTrial);
+});
+
+if (!sessionId) {
+  document.getElementById('trial-container').innerHTML =
+    '<div class="loading">No session ID provided.<br><br>Complete the <a href="/" style="color:#8b5cf6">seeding interaction</a> first.</div>';
+} else {
+  loadNext();
+}
+
+async function loadNext() {
+  const container = document.getElementById('trial-container');
+  const startedAt = Date.now();
+  container.innerHTML = '<div class="loading">Generating rewrite… <span id="elapsed">0s</span><br><small style="color:#4b5563">This transformation takes roughly 30 seconds.</small></div>';
+  const tick = setInterval(() => {
+    const el = document.getElementById('elapsed');
+    if (el) el.textContent = `${Math.floor((Date.now() - startedAt) / 1000)}s`;
+  }, 1000);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), LOAD_TIMEOUT_MS);
+
+  let res;
+  try {
+    res = await fetchWithRetry(`${API}/api/eval/next`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId }),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    clearInterval(tick);
+    clearTimeout(timeoutId);
+    const msg = e.name === 'AbortError'
+      ? 'Timed out waiting for a rewrite. <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button>'
+      : `Network error: ${escapeHtml(String(e))} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button>`;
+    container.innerHTML = `<div class="loading">${msg}</div>`;
+    document.getElementById('retry-btn').addEventListener('click', loadNext);
+    return;
+  }
+  clearInterval(tick);
+  clearTimeout(timeoutId);
+
+  if (!res.ok) {
+    const err = await friendlyError(res);
+    container.innerHTML = `<div class="loading">${escapeHtml(err)} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button></div>`;
+    document.getElementById('retry-btn').addEventListener('click', loadNext);
+    return;
+  }
+  currentTrial = await res.json();
+  choosing = false;
+
+  if (currentTrial.done) {
+    showReport();
+    return;
+  }
+  renderTrial(currentTrial);
+}
+
+function renderTrial(trial) {
+  const container = document.getElementById('trial-container');
+  container.innerHTML = '';
+
+  const progress = document.createElement('div');
+  progress.className = 'progress';
+  progress.textContent = `Trial ${trial.trials_completed + 1} of ${trial.trials_total}`;
+  container.appendChild(progress);
+
+  const topicTag = document.createElement('div');
+  topicTag.style.textAlign = 'center';
+  topicTag.innerHTML = `<span class="topic-tag">${trial.topic_name}</span>`;
+  container.appendChild(topicTag);
+
+  const comparison = document.createElement('div');
+  comparison.className = 'comparison';
+
+  const leftPanel = document.createElement('div');
+  leftPanel.className = 'panel';
+  leftPanel.textContent = trial.left_text;
+  leftPanel.addEventListener('click', () => choose('left'));
+
+  const rightPanel = document.createElement('div');
+  rightPanel.className = 'panel';
+  rightPanel.textContent = trial.right_text;
+  rightPanel.addEventListener('click', () => choose('right'));
+
+  if (devMode) {
+    if (trial.rewrite_side === 'left') leftPanel.classList.add('chosen');
+    if (trial.rewrite_side === 'right') rightPanel.classList.add('chosen');
+  }
+
+  comparison.appendChild(leftPanel);
+  comparison.appendChild(rightPanel);
+  container.appendChild(comparison);
+
+  if (devMode) {
+    container.appendChild(buildDevPanel(trial));
+  }
+}
+
+function trialKindBadgeHtml(trial) {
+  if (trial.trial_kind === 'anti_preference') {
+    return `<div class="trial-kind-badge anti">⇄ Bidirectional check — this post is something you already liked, pushed AWAY from your preference</div>`;
+  }
+  if (trial.trial_kind === 'rescue') {
+    return `<div class="trial-kind-badge rescue">↺ Rescue check — this post is something you passed over during seeding, pushed TOWARD your preference</div>`;
+  }
+  return `<div class="trial-kind-badge toward">→ Standard trial — pushed TOWARD your preference</div>`;
+}
+
+function buildDevPanel(trial) {
+  const panel = document.createElement('div');
+  panel.className = 'dev-panel open';
+
+  if (!trial.rewrite_succeeded) {
+    panel.innerHTML = `
+      ${trialKindBadgeHtml(trial)}
+      <div class="dev-section-title">Rewrite side</div>
+      <span class="side-badge">${trial.rewrite_side}</span>
+      <span style="color:#fbbf24;">Rewrite was rejected after ${trial.attempts || 0} attempt(s) — this side is actually the ORIGINAL text unchanged.</span>`;
+    return panel;
+  }
+
+  const sv = trial.style_verification;
+  const targetAxes = new Set(Object.keys(trial.deltas || {}));
+
+  let html = `${trialKindBadgeHtml(trial)}
+    <div class="dev-section-title">Rewrite side</div>
+    <span class="side-badge">${trial.rewrite_side}</span>`;
+
+  if (sv) {
+    const cls = sv.verdict === 'clean' ? 'clean' : 'leaked';
+    const icon = sv.verdict === 'clean' ? '✓' : '⚠';
+    html += ` <span class="verdict ${cls}">${icon} ${sv.verdict} · content similarity (BGE cosine) ${sv.bge_cosine.toFixed(3)}</span>`;
+  }
+
+  html += `<div class="dev-section-title">Target axes &amp; direction</div>`;
+  for (const [ax, d] of Object.entries(trial.deltas || {})) {
+    html += `<div class="attempts-row"><b style="color:#a78bfa">${ax.replace(/_/g,' ')}</b>: ${d.direction} (from ${d.current.toFixed(2)} toward ${d.target.toFixed(2)})</div>`;
+  }
+
+  if (sv && sv.axis_shifts) {
+    html += `<div class="dev-section-title">Per-axis shift (classifier)</div><table class="axis-table">`;
+    for (const [ax, v] of Object.entries(sv.axis_shifts)) {
+      const isTarget = targetAxes.has(ax);
+      html += `<tr class="${isTarget ? 'target' : ''}"><td>${ax.replace(/_/g,' ')}</td><td>${v >= 0 ? '+' : ''}${v.toFixed(4)}</td></tr>`;
+    }
+    html += `</table>`;
+  }
+
+  if (trial.attempts_log && trial.attempts_log.length > 1) {
+    html += `<div class="dev-section-title">Attempts (retry-on-reject)</div>`;
+    for (const a of trial.attempts_log) {
+      html += `<div class="attempts-row">attempt ${a.attempt} (temp ${a.temperature}): ${a.verdict} · target=${a.min_target_shift.toFixed(3)} other=${a.max_other_shift.toFixed(3)} bge_cosine=${a.bge_cosine.toFixed(3)}</div>`;
+    }
+  }
+
+  panel.innerHTML = html;
+  return panel;
+}
+
+async function choose(side) {
+  if (choosing || !currentTrial) return;
+  choosing = true;
+
+  const container = document.getElementById('trial-container');
+  let res;
+  try {
+    res = await fetchWithRetry(`${API}/api/eval/choice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId, post_id: currentTrial.post_id, chosen_side: side }),
+    });
+  } catch (e) {
+    choosing = false;
+    container.innerHTML = `<div class="loading">Network error: ${escapeHtml(String(e))} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button></div>`;
+    document.getElementById('retry-btn').addEventListener('click', () => choose(side));
+    return;
+  }
+
+  if (!res.ok) {
+    choosing = false;
+    const err = await friendlyError(res);
+    container.innerHTML = `<div class="loading">${escapeHtml(err)} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button></div>`;
+    document.getElementById('retry-btn').addEventListener('click', () => choose(side));
+    return;
+  }
+
+  const data = await res.json();
+
+  if (data.trials_completed >= data.trials_total) {
+    showReport();
+  } else {
+    loadNext();
+  }
+}
+
+async function showReport() {
+  const container = document.getElementById('trial-container');
+  container.innerHTML = '<div class="loading">Loading report…</div>';
+
+  let res;
+  try {
+    res = await fetchWithRetry(`${API}/api/eval/results/${sessionId}`, {});
+  } catch (e) {
+    container.innerHTML = `<div class="loading">Network error: ${escapeHtml(String(e))} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button></div>`;
+    document.getElementById('retry-btn').addEventListener('click', showReport);
+    return;
+  }
+  if (!res.ok) {
+    container.innerHTML = `<div class="loading">${escapeHtml(await friendlyError(res))} <button id="retry-btn" style="margin-left:8px;cursor:pointer;">Retry</button></div>`;
+    document.getElementById('retry-btn').addEventListener('click', showReport);
+    return;
+  }
+  const data = await res.json();
+  const stats = data.stats;
+
+  if (!stats) {
+    container.innerHTML = '<div class="loading">Evaluation complete, but no responses were recorded.</div>';
+    return;
+  }
+
+  const toward = stats.toward_preference;
+  const anti = stats.anti_preference;
+  const rescue = stats.rescue;
+
+  const axisTableHtml = (byAxis, valueKey, valueLabel) => {
+    const rows = Object.entries(byAxis)
+      .sort((a, b) => b[1].win_rate - a[1].win_rate)
+      .map(([ax, v]) => `
+        <tr>
+          <td>${ax.replace(/_/g, ' ')}</td>
+          <td>${v.total}</td>
+          <td>
+            <div class="win-rate-bar-wrap">
+              <div class="win-rate-bar"><div class="win-rate-bar-fill" style="width:${Math.round(v.win_rate * 100)}%"></div></div>
+              <span class="win-rate-value">${Math.round(v.win_rate * 100)}%</span>
+            </div>
+          </td>
+        </tr>`).join('');
+    return `<table class="axis-report-table">
+      <thead><tr><th>Target axis</th><th>Trials</th><th>${valueLabel}</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  };
+
+  let html = `<div class="report"><h2>Evaluation complete</h2>
+    <p class="subtitle">${stats.total_trials} trials total</p>`;
+
+  if (toward) {
+    const pct = Math.round(toward.rewrite_win_rate * 100);
+    html += `
+      <div class="report-headline">
+        <div class="big-number ${pct < 50 ? 'low' : ''}">${pct}%</div>
+        <div class="caption">of ${toward.n} standard trials, you picked the version pushed toward your preference</div>
+      </div>
+      ${axisTableHtml(toward.by_axis, 'win_rate', 'Preferred rewrite')}`;
+  }
+
+  if (anti) {
+    const origPct = Math.round(anti.original_preferred_rate * 100);
+    html += `
+      <div class="report-section-title">Bidirectional check</div>
+      <p class="report-section-hint">These ${anti.n} trial(s) took a post you already liked and deliberately pushed it AWAY from your preference. If personalization is real, you should prefer the untouched original here — the opposite of the standard trials above.</p>
+      <div class="report-headline">
+        <div class="big-number ${origPct < 50 ? 'low' : ''}">${origPct}%</div>
+        <div class="caption">of the time, you correctly preferred the untouched original over the degraded version</div>
+      </div>
+      ${axisTableHtml(anti.by_axis, 'win_rate', 'Preferred degraded version')}`;
+  } else {
+    html += `<div class="report-section-title">Bidirectional check</div>
+      <p class="report-section-hint">No bidirectional trials were generated this session (not enough liked posts left to degrade).</p>`;
+  }
+
+  if (rescue) {
+    const pct = Math.round(rescue.rewrite_win_rate * 100);
+    html += `
+      <div class="report-section-title">Rescue check</div>
+      <p class="report-section-hint">These ${rescue.n} trial(s) took a post you passed over during seeding and pushed it TOWARD your preference. This tests whether a rewrite can flip a rejection into a pick.</p>
+      <div class="report-headline">
+        <div class="big-number ${pct < 50 ? 'low' : ''}">${pct}%</div>
+        <div class="caption">of the time, the rewrite rescued a post you'd originally skipped</div>
+      </div>
+      ${axisTableHtml(rescue.by_axis, 'win_rate', 'Preferred rewrite')}`;
+  } else {
+    html += `<div class="report-section-title">Rescue check</div>
+      <p class="report-section-hint">No rescue trials were generated this session (not enough skipped posts left to rewrite).</p>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function friendlyError(res) {
+  const raw = await res.text();
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed.detail === 'string') return parsed.detail;
+  } catch (e) {}
+  return raw;
+}
+
+// 422 in this app is only ever raised by the app-wide RequestValidationError
+// handler (see backend/app_v2.py) -- never a real 4xx/5xx business error
+// (those use 400/404/502). Most of the time that means a transient
+// tunnel/proxy hiccup dropping a request body, so retrying a couple times
+// before surfacing anything to the user is safe. It won't help if the 422
+// is actually deterministic (e.g. a route wired to the wrong handler) --
+// that still needs a real backend fix, this only smooths over genuine
+// one-off blips.
+async function fetchWithRetry(url, options, maxRetries = 2, retryDelayMs = 600) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.status !== 422 || attempt === maxRetries) return res;
+    } catch (e) {
+      if ((options.signal && options.signal.aborted) || attempt === maxRetries) throw e;
+    }
+    await new Promise(r => setTimeout(r, retryDelayMs));
+  }
+}
+
+function resetSession() {
+  if (!confirm('Reset this session and start over from topic picking? Current progress will be lost.')) return;
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

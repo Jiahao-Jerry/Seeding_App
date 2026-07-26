@@ -14,9 +14,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.axes import AXES
 from config.settings import (
     MIN_TOPICS_CONFIDENT, CONFIDENCE_THRESHOLD, MAX_STEPS,
-    SHELF_SIZE, LLM_MODEL_PROFILE
+    SHELF_SIZE, LLM_MODEL_PROFILE, EXPLORE_ROUNDS
 )
 from backend.llm_helper import llm_json
+from backend.bt_profile import BTProfile, update_shelf, compute_bt_prefs, compute_all_preferred_values
 
 
 @dataclass
@@ -35,7 +36,16 @@ class SessionState:
     step_count: int = 0
     is_complete: bool = False
     last_action: dict = field(default_factory=dict)
-    sae_prefs: dict = field(default_factory=dict)  # SAE-derived axis preferences (updated after each interaction)
+    bt_profile: BTProfile = field(default_factory=BTProfile)  # Bradley-Terry style preferences
+    style_prefs: dict = field(default_factory=dict)  # BT-derived axis preferences (updated after each interaction), top-4 + neutral-band filtered -- what rewriting actually uses
+    all_style_prefs: dict = field(default_factory=dict)  # BT-derived, UNFILTERED preferred_value for every axis -- debug/dev display only, not used for rewriting
+    # Per-session overrides, defaulting to the module constants -- lets a
+    # specific variant (e.g. the shortened Chinese demo flow) run a shorter
+    # seeding session without changing behavior for anyone else. See
+    # decide_next_action()/check_stop_condition() below, which read these
+    # off state instead of the module constants directly.
+    max_steps: int = MAX_STEPS
+    explore_rounds: int = EXPLORE_ROUNDS
 
     def to_dict(self) -> dict:
         return {
@@ -51,7 +61,7 @@ class SessionState:
 
 def check_stop_condition(state: SessionState) -> bool:
     """Deterministic stop check."""
-    if state.step_count >= MAX_STEPS:
+    if state.step_count >= state.max_steps:
         return True
 
     # Check if enough topics are confident
@@ -115,7 +125,7 @@ def decide_next_action(state: SessionState, available_topics: list[str]) -> dict
     engaged_names = [t for t, _ in engaged_topics]
 
     # Only show another shelf if we truly lack topic diversity
-    if len(engaged_names) < MIN_TOPICS_CONFIDENT and state.step_count <= MAX_STEPS - 3:
+    if len(engaged_names) < MIN_TOPICS_CONFIDENT and state.step_count <= state.max_steps - 3:
         return {
             "mode": "shelf",
             "scope": "broad",
@@ -135,14 +145,40 @@ def decide_next_action(state: SessionState, available_topics: list[str]) -> dict
             "mode": "pair",
             "target_axis": min(axis_confs, key=axis_confs.get),
             "topic": engaged_names[0],
+            "pair_source": "cross" if state.step_count <= state.explore_rounds else "same",
         }
 
-    # Build scored candidates: rotate across (topic, axis) combos
+    # Build scored candidates: rotate across (topic, axis) combos.
+    #
+    # Explore phase (first EXPLORE_ROUNDS rounds): prioritize the WEAKEST
+    # axis, so every axis gets at least a baseline signal early rather than
+    # risking one going untouched all session.
+    #
+    # Exploit phase (every round after that): prioritize whichever
+    # still-unconfident axis is CLOSEST to CONFIDENCE_THRESHOLD instead --
+    # i.e. reinforce whatever's closest to actually finishing. Empirically,
+    # staying in "always probe the weakest" mode for the whole session
+    # spreads probes evenly across all 9 axes but leaves most of them stuck
+    # around 0.3-0.5 confidence, never crossing 0.65 -- there usually aren't
+    # enough of the ~11 available pair-rounds to fully resolve every axis
+    # from a flat start. Switching to "finish what's already closest" after
+    # the initial spread actually drives some axes over the line, instead
+    # of leaving all of them partially done.
+    explore_phase = state.step_count <= state.explore_rounds
+    # Pair source is tied to the same phase boundary: explore rounds (1-5)
+    # use cross-topic pairs (broader, more obvious contrasts while still
+    # widely sampling axes); exploit rounds (6-11) use same-topic pairs
+    # (finer refinement to actually close out whichever axis is closest to
+    # CONFIDENCE_THRESHOLD).
+    pair_source = "cross" if explore_phase else "same"
     candidates = []
     for ax_name, ax_conf in weak_axes:
         for topic_name in engaged_names:
             times_probed = _count_pairs_used_for(state, topic_name, ax_name)
-            priority = ax_conf + (times_probed * 0.2)
+            if explore_phase:
+                priority = ax_conf + (times_probed * 0.2)  # lowest wins: weakest + least-probed
+            else:
+                priority = -ax_conf + (times_probed * 0.2)  # lowest wins: strongest + least-probed
             candidates.append((topic_name, ax_name, priority))
 
     candidates.sort(key=lambda x: x[2])
@@ -152,6 +188,7 @@ def decide_next_action(state: SessionState, available_topics: list[str]) -> dict
         "mode": "pair",
         "target_axis": target_axis,
         "topic": target_topic,
+        "pair_source": pair_source,
     }
 
 
@@ -188,6 +225,13 @@ async def update_profile(state: SessionState, shown_posts: list[dict],
         for k, v in new_conf["axes"].items():
             if k in ALL_AXIS_NAMES:
                 state.confidence["axes"][k] = v
+
+    # Bradley-Terry style-preference model: same interaction, independent of
+    # the LLM's prose/confidence guess -- real posterior confidence per axis,
+    # see backend/bt_profile.py.
+    update_shelf(state.bt_profile, shown_posts, user_choices)
+    state.style_prefs = compute_bt_prefs(state.bt_profile)
+    state.all_style_prefs = compute_all_preferred_values(state.bt_profile)
 
     # Record in history (include action metadata for rotation tracking)
     history_entry = {

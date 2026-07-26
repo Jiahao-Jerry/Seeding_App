@@ -140,51 +140,114 @@ def copy_embeddings():
     print(f"  {arr.shape} → {dst}")
 
 
+# Minimum |gap| on the target axis before a pair is even considered.
+# Raised from the original 0.3/0.35 (same-topic/cross-topic) -- with a
+# collateral-shift penalty now factored into score, a smaller target gap
+# would too easily lose to the penalty term and never win regardless.
+TARGET_GAP_THRESHOLD = 0.45
+
+# How many of the OTHER 8 axes' collateral shifts get penalized -- just the
+# two worst offenders, not a sum over all 8 (which could be dominated by
+# noise across many weakly-correlated axes) and not just the single worst
+# (which could miss a pair with two moderately-bad axes). Both posts in
+# every candidate pair have all 9 axes labeled (verified: 0 missing values
+# in the 1,997-post labeled set), so this never has to handle partial data.
+COLLATERAL_TOP_K = 2
+
+
+def _score_group_pairs(target_a: np.ndarray, other_a: np.ndarray,
+                        target_b: np.ndarray, other_b: np.ndarray) -> tuple:
+    """
+    Vectorized: every post in group A vs every post in group B (same group
+    for same-topic, since a post is never paired with itself the diagonal is
+    masked out by the caller). Returns (abs_gap, a_is_high, score) matrices,
+    all shape (len(A), len(B)).
+
+    score = |target_gap| - (sum of the COLLATERAL_TOP_K largest absolute
+    gaps among the other 8 axes) -- rewards a pair that differs A LOT on the
+    probed axis while staying close on everything else, not just the
+    biggest raw gap on the target axis alone.
+    """
+    gap = target_a[:, None] - target_b[None, :]                    # (nA, nB), signed
+    abs_gap = np.abs(gap)
+    a_is_high = gap > 0
+
+    other_diff = np.abs(other_a[:, None, :] - other_b[None, :, :])  # (nA, nB, 8)
+    top_k = np.sort(other_diff, axis=-1)[..., -COLLATERAL_TOP_K:].sum(axis=-1)
+
+    score = abs_gap - top_k
+    return abs_gap, a_is_high, score
+
+
 def build_pairs(dataset: pd.DataFrame):
-    print("Building contrastive pairs...")
+    """
+    Contrastive pair generation. For a candidate pair to probe axis X: filter
+    to |gap on X| >= TARGET_GAP_THRESHOLD, then rank survivors by
+    score = |gap on X| - (sum of the 2 largest collateral gaps on the other
+    8 axes) -- i.e. prefer pairs that differ a lot on X specifically while
+    staying as close as possible on everything else, not just whichever
+    pair has the single biggest gap on X. Applied to both same-topic and
+    cross-topic candidate generation, using the FULL cross-product of posts
+    (not just top/bottom-third or the single most extreme post per topic --
+    see scripts/build_pairs_legacy_v1.py for the original, simpler method).
+    """
+    print("Building contrastive pairs (collateral-penalized scoring)...")
     labels = pd.read_parquet(SAE2 / "axis_labels.parquet")
     labels["post_id"] = labels["post_id"].astype(str)
     valid_ids = set(dataset["post_id"].astype(str))
     labels = labels[labels["post_id"].isin(valid_ids)].copy()
+    labels = labels.dropna(subset=AXIS_NAMES)  # every candidate needs all 9 axes to score collateral shift
 
+    topics = labels["topic_name"].unique()
     same_topic_pairs = []
     cross_topic_pairs = []
 
     for ax in AXIS_NAMES:
-        if ax not in labels.columns:
-            continue
-        ax_data = labels[["post_id", "topic_name", ax]].dropna(subset=[ax])
-        topics = ax_data["topic_name"].unique()
+        other_axes = [a for a in AXIS_NAMES if a != ax]
 
+        # Same-topic: full cross-product within each topic.
         for topic in topics:
-            group = ax_data[ax_data["topic_name"] == topic].sort_values(ax)
-            if len(group) < 2:
+            group = labels[labels["topic_name"] == topic]
+            n = len(group)
+            if n < 2:
                 continue
-            high = group.tail(max(1, len(group) // 3))
-            low = group.head(max(1, len(group) // 3))
-            for _, h_row in high.iterrows():
-                for _, l_row in low.iterrows():
-                    gap = float(h_row[ax]) - float(l_row[ax])
-                    if gap >= 0.3:
-                        same_topic_pairs.append({
-                            "target_axis": ax, "score": round(gap, 3),
-                            "high_post_id": str(h_row["post_id"]),
-                            "low_post_id": str(l_row["post_id"]),
-                        })
+            ids = group["post_id"].to_numpy()
+            target_v = group[ax].to_numpy()
+            other_v = group[other_axes].to_numpy()
 
+            abs_gap, a_is_high, score = _score_group_pairs(target_v, other_v, target_v, other_v)
+            np.fill_diagonal(abs_gap, 0)  # a post can't be paired with itself
+            i_idx, j_idx = np.where(abs_gap >= TARGET_GAP_THRESHOLD)
+            for i, j in zip(i_idx, j_idx):
+                if i >= j:
+                    continue  # (i,j) and (j,i) are the same unordered pair -- keep one
+                hi, lo = (i, j) if a_is_high[i, j] else (j, i)
+                same_topic_pairs.append({
+                    "target_axis": ax, "score": round(float(score[i, j]), 3),
+                    "high_post_id": str(ids[hi]), "low_post_id": str(ids[lo]),
+                })
+
+        # Cross-topic: full cross-product between every pair of topics.
         for t1, t2 in combinations(topics, 2):
-            g1 = ax_data[ax_data["topic_name"] == t1].sort_values(ax)
-            g2 = ax_data[ax_data["topic_name"] == t2].sort_values(ax)
-            if len(g1) < 2 or len(g2) < 2:
+            g1 = labels[labels["topic_name"] == t1]
+            g2 = labels[labels["topic_name"] == t2]
+            if len(g1) < 1 or len(g2) < 1:
                 continue
-            for (h, l) in [(g1.iloc[-1], g2.iloc[0]), (g2.iloc[-1], g1.iloc[0])]:
-                gap = float(h[ax]) - float(l[ax])
-                if gap >= 0.35:
-                    cross_topic_pairs.append({
-                        "target_axis": ax, "score": round(gap, 3),
-                        "high_post_id": str(h["post_id"]),
-                        "low_post_id": str(l["post_id"]),
-                    })
+            ids1, ids2 = g1["post_id"].to_numpy(), g2["post_id"].to_numpy()
+            tv1, tv2 = g1[ax].to_numpy(), g2[ax].to_numpy()
+            ov1, ov2 = g1[other_axes].to_numpy(), g2[other_axes].to_numpy()
+
+            abs_gap, g1_is_high, score = _score_group_pairs(tv1, ov1, tv2, ov2)
+            i_idx, j_idx = np.where(abs_gap >= TARGET_GAP_THRESHOLD)
+            for i, j in zip(i_idx, j_idx):
+                if g1_is_high[i, j]:
+                    high_id, low_id = ids1[i], ids2[j]
+                else:
+                    high_id, low_id = ids2[j], ids1[i]
+                cross_topic_pairs.append({
+                    "target_axis": ax, "score": round(float(score[i, j]), 3),
+                    "high_post_id": str(high_id), "low_post_id": str(low_id),
+                })
 
     pairs_df = pd.DataFrame(same_topic_pairs).drop_duplicates(
         subset=["target_axis", "high_post_id", "low_post_id"]

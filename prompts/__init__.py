@@ -215,14 +215,15 @@ HARD CONSTRAINTS (never violate):
 1. Preserve the core claim, factual content, and the author's stance.
 2. Do not invent new arguments or remove key information.
 3. STAY WITHIN ±20% of the original word count. This is strict. If the original is 40 words, your rewrite must be 32–48 words. Restructure rather than expand.
-4. Preserve the textual register of the original. If it uses fragments, slang, internet shorthand, lowercase — keep that. Do not polish into formal prose. A messy post rewritten in a different style should still feel messy.
+4. Preserve the textual register of the original — UNLESS the requested style shift explicitly targets a DECREASE in casualness. If it uses fragments, slang, internet shorthand, lowercase — keep that. Do not polish into formal prose. A messy post rewritten in a different style should still feel messy. This rule does not apply when casualness is being decreased: in that one case, becoming more formal/polished IS the requested change, not a violation of it.
 
 STYLE SHIFT GUIDANCE:
 - You are changing HOW something is delivered along specific axes. Not cleaning it up.
 - For narrativity: restructure into story/anecdote form WITHIN the same length. Cut filler to make room for framing.
 - For tone: shift the emotional temperature without adding hedges or qualifiers that inflate word count.
+- For casualness (decrease only): actually formalize the delivery — expand contractions, replace slang/internet shorthand with standard phrasing, restore capitalization and punctuation, avoid sentence fragments. Constraint 4 above is suspended for this specific case.
 - Do NOT default to first-person "I" framing. Narrative can be observational, second-person, or scene-setting without "I started..." or "I was thinking..."
-- The result should read like someone with a DIFFERENT style wrote the SAME post on the SAME platform. Not like an editor rewrote it for a magazine.
+- The result should read like someone with a DIFFERENT style wrote the SAME post on the SAME platform. Not like an editor rewrote it for a magazine (except when casualness itself is the thing being decreased).
 
 Return JSON:
 {

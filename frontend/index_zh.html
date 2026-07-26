@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adaptive Delivery — Seeding</title>
+<title>自适应内容呈现 — 种子会话</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", 'Segoe UI', system-ui, sans-serif;
   background: #0f1117; color: #e8eaf0;
   min-height: 100vh; padding: 32px 16px;
   display: flex; flex-direction: column; align-items: center;
@@ -69,7 +69,7 @@ body {
 .post-card .topic-tag {
   display: inline-block; font-size: 0.7rem; font-weight: 600;
   color: #9ca3af; background: #1f2937; border-radius: 6px;
-  padding: 2px 8px; margin-bottom: 10px; text-transform: uppercase;
+  padding: 2px 8px; margin-bottom: 10px;
   letter-spacing: 0.04em;
 }
 .post-card .text { white-space: pre-wrap; word-break: break-word; }
@@ -92,7 +92,7 @@ body {
 .profile-panel h3 { font-size: 0.9rem; color: #d1d5db; margin-bottom: 12px; }
 .profile-section { margin-bottom: 14px; }
 .profile-section label {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  font-size: 0.7rem; font-weight: 700;
   letter-spacing: 0.06em; color: #6b7280; display: block; margin-bottom: 4px;
 }
 .profile-section .value {
@@ -122,7 +122,7 @@ body {
 /* Hidden */
 .hidden { display: none; }
 
-/* Topic picker (v2 only) */
+/* Topic picker */
 .topic-grid {
   display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
   margin-bottom: 32px; max-width: 720px; margin-left: auto; margin-right: auto;
@@ -148,7 +148,7 @@ body {
 
 /* Confidence / style-preference evolution (dev-only) */
 .evo-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
-.evo-row .evo-label { font-size: 0.72rem; color: #9ca3af; min-width: 100px; text-transform: capitalize; }
+.evo-row .evo-label { font-size: 0.72rem; color: #9ca3af; min-width: 100px; }
 .evo-value { font-size: 0.75rem; color: #d1d5db; min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
 
 .reset-btn {
@@ -156,79 +156,75 @@ body {
   border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: all 0.15s;
 }
 .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+.translating-note { text-align: center; color: #6b7280; font-size: 0.85rem; padding: 20px; }
 </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h1></h1>
-    <p></p>
+    <h1>自适应内容呈现</h1>
+    <p>了解你的阅读风格偏好 — 中文测试版</p>
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
-      <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;color:#6b7280;cursor:pointer;">
-        <input type="checkbox" id="dev-toggle" onchange="toggleDevMode()" style="accent-color:#4b5563;">
-        Show system details
-      </label>
-      <button class="reset-btn" id="reset-btn" onclick="resetSession()">↺ Reset Session</button>
+      <button class="reset-btn" id="reset-btn" onclick="resetSession()">↺ 重置会话</button>
     </div>
   </div>
 
   <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
 
   <div class="status dev-only">
-    <span class="step" id="step-label">Starting...</span>
+    <span class="step" id="step-label">正在加载...</span>
     <span id="mode-label"></span>
   </div>
 
   <div class="instruction" id="instruction">
-    <h2 id="instr-title">Pick posts you'd engage with</h2>
-    <p id="instr-hint">Tap any posts that catch your interest, then confirm.</p>
+    <h2 id="instr-title">选择你感兴趣的帖子</h2>
+    <p id="instr-hint">点击任何吸引你的帖子，然后确认。</p>
   </div>
 
-  <!-- Topic picker (v2 architecture only — replaces the post-based topic-
-       discovery shelf with a direct ask, since v2's topic confidence is just
-       a frequency count and there's no reason to infer it indirectly). -->
+  <!-- Topic picker -->
   <div class="topic-grid hidden" id="topic-grid"></div>
 
   <div class="post-grid shelf" id="post-grid"></div>
 
   <div class="confirm-wrap">
     <button class="confirm-btn" id="confirm-btn" onclick="confirmChoices()">
-      Confirm Selection →
+      确认选择 →
     </button>
   </div>
 
   <!-- Profile (dev-only, shown after first interaction) -->
   <div class="profile-panel hidden dev-only" id="profile-panel">
-    <h3>Your Evolving Profile</h3>
+    <h3>你的动态画像</h3>
     <div class="profile-section">
-      <label>Topics</label>
+      <label>主题</label>
       <div class="value" id="profile-topics">—</div>
     </div>
     <div class="profile-section">
-      <label>Style Preferences</label>
+      <label>风格偏好</label>
       <div class="value" id="profile-style">—</div>
     </div>
     <div class="profile-section">
-      <label>Confidence</label>
+      <label>置信度</label>
       <div class="conf-grid" id="conf-grid"></div>
     </div>
     <div class="profile-section">
-      <label>Confidence over time (per axis)</label>
+      <label>置信度随时间变化（每个维度）</label>
       <div id="confidence-evolution"></div>
     </div>
     <div class="profile-section">
-      <label>Style preference over time (per axis)</label>
+      <label>风格偏好随时间变化（每个维度）</label>
       <div id="style-evolution"></div>
     </div>
   </div>
 
   <!-- Complete screen -->
   <div class="complete hidden" id="complete-screen">
-    <h2>✓ Profile Complete</h2>
-    <p>We've learned enough about your preferences.</p>
+    <h2>✓ 画像已完成</h2>
+    <p>我们已经充分了解了你的偏好。</p>
     <div class="profile-panel" id="final-profile"></div>
-    <button class="download-btn" onclick="downloadProfile()">⬇ Download Profile</button>
+    <button class="download-btn" onclick="downloadProfile()">⬇ 下载画像数据</button>
   </div>
 </div>
 
@@ -237,15 +233,56 @@ const API = '';  // same origin
 let sessionId = null;
 let currentPosts = [];
 let selectedIds = new Set();
-let DEV_MODE = new URLSearchParams(window.location.search).has('dev');
+// Dev mode is permanently off in the Chinese version -- no toggle, no
+// ?dev=1 URL bypass. This constant never changes.
+const DEV_MODE = false;
 
-// Which backend architecture is this? Used to be window.location.port ===
-// '8001', which breaks the moment the app is served through anything that
-// hides the real port (a reverse proxy, a tunnel like cloudflared/ngrok,
-// standard 443 HTTPS) -- window.location.port is just "" in all of those
-// cases, so it always resolved to the wrong (v1) architecture. Ask the
-// server directly instead: /health only includes an "architecture" field
-// on the v2 (no-LLM-profile) app.
+// Hardcoded translation tables for the fixed sets of axis/topic names --
+// these never change, so there's no need to call the translation API for
+// them. Only free-form post/rewrite text (which varies per post) goes
+// through /api/translate. Falls back to the English original if a lookup
+// misses, so nothing ever silently disappears.
+const AXIS_ZH = {
+  reading_level: '阅读难度', concreteness: '具体性', narrativity: '叙事性',
+  hedging: '委婉程度', tone: '语气', warmth: '温暖度',
+  self_disclosure: '自我表露', casualness: '随意程度', humor: '幽默感',
+};
+const TOPIC_ZH = {
+  'AI & Tech': '人工智能与科技', 'Ancient History': '古代历史',
+  'Birds & Nature': '鸟类与自然', 'Books & Reading': '书籍与阅读',
+  'Climate & Energy': '气候与能源', 'Economy & Jobs': '经济与就业',
+  'Fitness & Gym': '健身', 'Food & Cooking': '美食与烹饪',
+  'Gardening & Plants': '园艺与植物', 'Higher Education': '高等教育',
+  'Movies & Film': '电影', 'Music': '音乐', 'Pets': '宠物',
+  'Photography': '摄影', 'Politics': '政治',
+  'Space & Astronomy': '太空与天文', 'Sports': '体育',
+  'Transportation & Urbanism': '交通与城市规划', 'Video Games': '电子游戏',
+};
+function axisZh(ax) { return AXIS_ZH[ax] || ax.replace(/_/g, ' '); }
+function topicZh(t) { return TOPIC_ZH[t] || t; }
+
+// Batch-translate free-form text via the backend (English generation +
+// verification stay untouched -- this only affects what gets displayed).
+// Falls back to the original English text if the call fails, so a
+// translation hiccup never blocks the session.
+async function translateBatch(texts) {
+  if (!texts.length) return texts;
+  try {
+    const res = await fetch(`${API}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts }),
+    });
+    if (!res.ok) return texts;
+    const data = await res.json();
+    return data.translations && data.translations.length === texts.length ? data.translations : texts;
+  } catch (e) {
+    return texts;
+  }
+}
+
+// Which backend architecture is this? /health only includes an
+// "architecture" field on the v2 (no-LLM-profile) app.
 let isV2Architecture = false;
 async function detectArchitecture() {
   try {
@@ -257,27 +294,15 @@ async function detectArchitecture() {
   }
 }
 
-// Axis-evolution tracking (dev mode): one snapshot pushed per round, so we
-// can show a per-axis trend instead of just the latest value.
 const AXIS_ORDER = ['reading_level', 'concreteness', 'narrativity', 'hedging',
                      'tone', 'warmth', 'self_disclosure', 'casualness', 'humor'];
-let confidenceHistory = [];  // [{ axis: value, ... }, ...] one entry per round
+let confidenceHistory = [];
 let stylePrefsHistory = [];  // FILTERED (top-4 + neutral-band) -- what rewriting actually uses
 let allStylePrefsHistory = [];  // UNFILTERED -- raw preferred_value for every axis, for the evolution chart
 
-// Sync checkbox with URL param on load
-if (DEV_MODE) document.getElementById('dev-toggle').checked = true;
 applyDevMode();
 
 let lastProfile = null, lastConfidence = null, lastStylePrefs = null;
-
-function toggleDevMode() {
-  DEV_MODE = document.getElementById('dev-toggle').checked;
-  applyDevMode();
-  // Toggling on mid-session should show the full trend recorded so far, not
-  // just start from whichever round dev mode happened to be turned on at.
-  if (DEV_MODE && lastConfidence) renderProfilePanelDisplay();
-}
 
 function applyDevMode() {
   document.querySelectorAll('.dev-only').forEach(el => {
@@ -290,8 +315,12 @@ const MIN_TOPICS_REQUIRED = 2;
 let selectedTopics = new Set();
 
 async function startSession() {
-  document.getElementById('step-label').textContent = 'Loading…';
-  const res = await fetch(`${API}/api/session/start`, { method: 'POST' });
+  document.getElementById('step-label').textContent = '正在加载…';
+  // ?variant=short: shortened Chinese demo flow -- 6 seeding rounds instead
+  // of 11, and a 6-trial, all-standard eval (no bidirectional/rescue
+  // trials). Configured entirely server-side per session; the English flow
+  // (index.html) never passes this and is completely unaffected.
+  const res = await fetch(`${API}/api/session/start?variant=short`, { method: 'POST' });
   const data = await res.json();
   sessionId = data.session_id;
 
@@ -300,16 +329,16 @@ async function startSession() {
     return;
   }
 
-  document.getElementById('step-label').textContent = 'Step 1';
+  document.getElementById('step-label').textContent = '第 1 步';
   renderPosts(data.posts, data.action);
 }
 
-// ── Topic picker (v2 only) ──────────────────────────────────────
+// ── Topic picker ──────────────────────────────────────
 function renderTopicPicker(topics) {
-  document.getElementById('step-label').textContent = 'Pick your topics';
-  document.getElementById('mode-label').textContent = 'Mode A: Topic selection';
-  document.getElementById('instr-title').textContent = 'Which topics are you interested in?';
-  document.getElementById('instr-hint').textContent = `Pick at least ${MIN_TOPICS_REQUIRED} — this replaces guessing your interests from posts.`;
+  document.getElementById('step-label').textContent = '选择你的主题';
+  document.getElementById('mode-label').textContent = '模式 A：主题选择';
+  document.getElementById('instr-title').textContent = '你对哪些主题感兴趣？';
+  document.getElementById('instr-hint').textContent = `至少选择 ${MIN_TOPICS_REQUIRED} 个 — 这样就不用从帖子中猜测你的兴趣了。`;
 
   document.getElementById('post-grid').classList.add('hidden');
   const grid = document.getElementById('topic-grid');
@@ -321,7 +350,7 @@ function renderTopicPicker(topics) {
   topics.forEach(topic => {
     const chip = document.createElement('div');
     chip.className = 'topic-chip';
-    chip.textContent = topic;
+    chip.textContent = topicZh(topic);
     chip.onclick = () => {
       if (selectedTopics.has(topic)) {
         selectedTopics.delete(topic);
@@ -337,7 +366,7 @@ function renderTopicPicker(topics) {
   });
 
   const btn = document.getElementById('confirm-btn');
-  btn.textContent = 'Continue →';
+  btn.textContent = '继续 →';
   btn.onclick = confirmTopics;
 }
 
@@ -345,7 +374,7 @@ async function confirmTopics() {
   if (selectedTopics.size < MIN_TOPICS_REQUIRED) return;
 
   const btn = document.getElementById('confirm-btn');
-  btn.textContent = 'Updating...';
+  btn.textContent = '正在更新...';
   btn.classList.remove('active');
 
   const res = await fetch(`${API}/api/session/choose-topics`, {
@@ -360,52 +389,52 @@ async function confirmTopics() {
 
   document.getElementById('topic-grid').classList.add('hidden');
   document.getElementById('post-grid').classList.remove('hidden');
-  btn.textContent = 'Confirm Selection →';
+  btn.textContent = '确认选择 →';
   btn.onclick = confirmChoices;
 
   if (data.is_complete) {
     showComplete(data);
     return;
   }
-  document.getElementById('step-label').textContent = 'Step 2';
+  document.getElementById('step-label').textContent = '第 2 步';
   renderPosts(data.posts, data.action);
 }
 
 // ── Render posts ─────────────────────────────────────────────────
-function renderPosts(posts, action) {
+async function renderPosts(posts, action) {
   currentPosts = posts;
   selectedIds.clear();
   updateConfirmBtn();
 
   const grid = document.getElementById('post-grid');
-  grid.innerHTML = '';
   grid.className = `post-grid ${action.mode === 'pair' ? 'pair' : 'shelf'}`;
+  grid.innerHTML = '<div class="translating-note">翻译中…</div>';
 
   if (action.mode === 'pair') {
-    document.getElementById('instr-title').textContent = 'Pick the one you\'d rather read.';
+    document.getElementById('instr-title').textContent = '选择你更愿意阅读的那一个。';
     document.getElementById('instr-hint').textContent = '';
     document.getElementById('mode-label').textContent =
-      `Mode B — probing: ${action.target_axis.replace(/_/g, ' ')}`;
+      `模式 B — 正在探测：${axisZh(action.target_axis)}`;
   } else {
-    document.getElementById('instr-title').textContent = 'Tap any posts that catch your interest.';
+    document.getElementById('instr-title').textContent = '点击任何吸引你的帖子。';
     document.getElementById('instr-hint').textContent = '';
-    document.getElementById('mode-label').textContent = 'Mode A: Topic discovery';
+    document.getElementById('mode-label').textContent = '模式 A：主题探索';
   }
 
-  posts.forEach(post => {
+  const translations = await translateBatch(posts.map(p => p.text));
+
+  grid.innerHTML = '';
+  posts.forEach((post, i) => {
     const card = document.createElement('div');
     card.className = 'post-card';
     card.dataset.id = post.post_id;
     const topicHtml = DEV_MODE
-      ? `<span class="topic-tag">${post.topic_name}</span>`
+      ? `<span class="topic-tag">${topicZh(post.topic_name)}</span>`
       : '';
-    // Pair mode (Mode B) is exactly the comparison the BT model learns from
-    // -- in dev mode, label each choice with its raw 9-axis scores so it's
-    // clear what difference the model is actually reacting to when you pick.
     const axisHtml = (DEV_MODE && action.mode === 'pair') ? axisLabelHtml(post.axes) : '';
     card.innerHTML = `
       ${topicHtml}
-      <div class="text">${escapeHtml(post.text)}</div>
+      <div class="text">${escapeHtml(translations[i])}</div>
       ${axisHtml}
     `;
     card.onclick = () => toggleCard(card, post.post_id, action.mode);
@@ -419,14 +448,13 @@ function axisLabelHtml(axes) {
     const raw = axes[ax];
     const v = raw && typeof raw === 'object' ? raw.score : raw;
     if (v === undefined || v === null) return '';
-    return `<span class="axis-label-chip">${ax.replace(/_/g, ' ')}: ${Number(v).toFixed(2)}</span>`;
+    return `<span class="axis-label-chip">${axisZh(ax)}：${Number(v).toFixed(2)}</span>`;
   }).join('');
   return `<div class="axis-label-row">${chips}</div>`;
 }
 
 function toggleCard(card, postId, mode) {
   if (mode === 'pair') {
-    // In pair mode, only one can be selected
     document.querySelectorAll('.post-card').forEach(c => c.classList.remove('selected'));
     selectedIds.clear();
     selectedIds.add(postId);
@@ -453,7 +481,7 @@ async function confirmChoices() {
   if (selectedIds.size === 0) return;
 
   const btn = document.getElementById('confirm-btn');
-  btn.textContent = 'Updating...';
+  btn.textContent = '正在更新...';
   btn.classList.remove('active');
 
   const allShownIds = currentPosts.map(p => p.post_id);
@@ -469,8 +497,6 @@ async function confirmChoices() {
   });
   const data = await res.json();
 
-  // Update profile display (data.profile is absent on the no-LLM-profile v2
-  // architecture -- updateProfilePanel() falls back to style_prefs then)
   updateProfilePanel(data.profile, data.confidence, data.style_prefs, data.all_style_prefs);
   updateProgress(data);
 
@@ -479,34 +505,28 @@ async function confirmChoices() {
     return;
   }
 
-  // Render next round
-  btn.textContent = 'Confirm Selection →';
+  btn.textContent = '确认选择 →';
   renderPosts(data.posts, data.action);
 }
 
 // ── Profile panel ────────────────────────────────────────────────
 function styleObjectsSummary(stylePrefs) {
-  if (!stylePrefs || Object.keys(stylePrefs).length === 0) return '— (not confident enough yet)';
+  if (!stylePrefs || Object.keys(stylePrefs).length === 0) return '—（置信度尚不足）';
   return Object.entries(stylePrefs)
-    .map(([ax, val]) => `${ax.replace(/_/g, ' ')}: ${val > 0.5 ? 'more' : 'less'} (${val.toFixed(2)})`)
-    .join(', ');
+    .map(([ax, val]) => `${axisZh(ax)}：${val > 0.5 ? '偏多' : '偏少'}（${val.toFixed(2)}）`)
+    .join('，');
 }
 
 // profile.topics_prose only exists on the LLM-profile (v1) architecture --
-// v2 has no LLM prose at all, so topics_prose is always undefined there and
-// the Topics field would otherwise show nothing. v2's topic confidence
-// (confidence.topics) IS real data -- topics get set to full confidence the
-// moment the user picks them in choose-topics -- so just list those keys.
+// v2 has no LLM prose at all, so fall back to the real topic confidence
+// data (set to full confidence the moment the user picks a topic).
 function topicsSummary(confidence) {
   const topics = Object.keys(confidence?.topics || {});
-  if (!topics.length) return '— (no topics recorded)';
-  return topics.map(t => t.replace(/_/g, ' ')).join(', ');
+  if (!topics.length) return '—（未记录主题）';
+  return topics.map(t => topicZh(t)).join('，');
 }
 
 function updateProfilePanel(profile, confidence, stylePrefs, allStylePrefs) {
-  // Record history unconditionally, even if dev mode is off right now --
-  // toggling it on later should show the full trend, not just what happened
-  // after the toggle.
   lastProfile = profile; lastConfidence = confidence; lastStylePrefs = stylePrefs;
   confidenceHistory.push({ ...(confidence?.axes || {}) });
   stylePrefsHistory.push({ ...(stylePrefs || {}) });
@@ -520,28 +540,22 @@ function renderProfilePanelDisplay() {
   const panel = document.getElementById('profile-panel');
   panel.classList.remove('hidden');
 
-  // profile (topics_prose/style_prose) only exists on the LLM-profile
-  // architecture -- the no-LLM-profile (v2) architecture has no prose at
-  // all, so fall back to a plain summary of the Bradley-Terry style_prefs.
   document.getElementById('profile-topics').textContent = lastProfile?.topics_prose || topicsSummary(lastConfidence);
   document.getElementById('profile-style').textContent = lastProfile?.style_prose || styleObjectsSummary(lastStylePrefs);
 
   const confGrid = document.getElementById('conf-grid');
   confGrid.innerHTML = '';
 
-  // Topic confidences
   for (const [topic, conf] of Object.entries(lastConfidence?.topics || {})) {
-    confGrid.innerHTML += confItem(topic, conf);
+    confGrid.innerHTML += confItem(topicZh(topic), conf);
   }
-  // Axis confidences
   for (const [axis, conf] of Object.entries(lastConfidence?.axes || {})) {
-    confGrid.innerHTML += confItem(axis.replace('_', ' '), conf);
+    confGrid.innerHTML += confItem(axisZh(axis), conf);
   }
 
   renderEvolutionPanel();
 }
 
-// ── Confidence / style-preference evolution (dev-only) ──────────
 function renderEvolutionPanel() {
   renderEvoGrid('confidence-evolution', confidenceHistory, 'confidence');
   // allStylePrefsHistory is UNFILTERED -- shows every axis's raw preferred
@@ -558,25 +572,20 @@ function renderEvoGrid(containerId, history, kind, activeAxes) {
   container.innerHTML = '';
 
   AXIS_ORDER.forEach(ax => {
-    const values = history.map(round => round[ax]);  // undefined where not yet established
-    // The summary number must reflect the CURRENT (most recent) round only
-    // -- not the last round this axis happened to have a value, which for
-    // style_prefs specifically can be stale: an axis can be included in an
-    // earlier round then dropped by the final round (ranking displacement,
-    // or its preferred_value drifting into the neutral band -- see
-    // compute_bt_prefs), and backfilling from history would silently show
-    // that dropped axis as if it were still part of the live profile.
+    const values = history.map(round => round[ax]);
+    // Summary number = the CURRENT (most recent) round only, not backfilled
+    // from an earlier round the axis happened to have a value in -- see the
+    // matching comment in index.html's renderEvoGrid() for why that matters.
     const current = values[values.length - 1];
 
     // Mark axes currently in the FILTERED style_prefs (top-4 + non-neutral)
-    // -- i.e. actually live for rewriting right now -- so it's still clear
-    // which of these 9 raw numbers the app is acting on vs. just tracking.
+    // -- i.e. actually live for rewriting right now.
     const isActive = kind === 'style' && activeAxes && activeAxes.has(ax);
 
     const row = document.createElement('div');
     row.className = 'evo-row';
     row.innerHTML = `
-      <span class="evo-label">${isActive ? '● ' : ''}${ax.replace(/_/g, ' ')}</span>
+      <span class="evo-label">${isActive ? '● ' : ''}${axisZh(ax)}</span>
       <span class="evo-value" style="${isActive ? 'color:#c4b5fd;font-weight:700;' : ''}">${current !== undefined ? current.toFixed(2) : '—'}</span>
     `;
     container.appendChild(row);
@@ -592,10 +601,8 @@ function confItem(label, value) {
 }
 
 function updateProgress(data) {
-  // Estimate progress from step count / max steps
   const step = data.confidence ? Object.keys(data.confidence.topics || {}).length : 0;
-  document.getElementById('step-label').textContent = `Step ${step + 1}`;
-  // Simple progress based on confidence coverage
+  document.getElementById('step-label').textContent = `第 ${step + 1} 步`;
   const axes = Object.values(data.confidence?.axes || {});
   const avgConf = axes.length ? axes.reduce((a, b) => a + b, 0) / axes.length : 0;
   document.getElementById('progress-bar').style.width = `${Math.round(avgConf * 100)}%`;
@@ -609,31 +616,21 @@ function showComplete(data) {
 
   const screen = document.getElementById('complete-screen');
   screen.classList.remove('hidden');
-  // Remove any eval/feed buttons from a previous completion (possible after
-  // Reset Session -> finish another session) so they don't just pile up.
   screen.querySelectorAll('.dynamic-action-btn').forEach(el => el.remove());
   screen.querySelector('.profile-panel').innerHTML = `
-    <h3>Final Profile</h3>
-    <div class="profile-section"><label>Topics</label>
+    <h3>最终画像</h3>
+    <div class="profile-section"><label>主题</label>
       <div class="value">${data.profile?.topics_prose || topicsSummary(data.confidence)}</div></div>
-    <div class="profile-section"><label>Style</label>
+    <div class="profile-section"><label>风格</label>
       <div class="value">${data.profile?.style_prose || styleObjectsSummary(data.style_prefs)}</div></div>
   `;
 
-  // Add evaluation button (always shown). isV2Architecture (detected via
-  // /health at page load, see detectArchitecture()) is true for the
-  // no-LLM-profile "v2" architecture (backend/app_v2.py) -- it has its own
-  // eval endpoints and its own dedicated page, since the old eval flow's
-  // endpoints (/api/eval/start etc.) don't exist there.
   const evalBtn = document.createElement('button');
   evalBtn.className = 'download-btn dynamic-action-btn';
   evalBtn.style.marginTop = '12px';
   evalBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
-  evalBtn.textContent = '→ Start Evaluation';
+  evalBtn.textContent = '→ 开始评估';
   evalBtn.onclick = () => {
-    // Kick off background rewrite generation now, before navigating, so a
-    // trial (or two) is often already queued up by the time eval_v2.html
-    // loads instead of the user waiting on a live LLM call there.
     if (isV2Architecture) {
       fetch('/api/eval/prewarm', {
         method: 'POST',
@@ -641,27 +638,24 @@ function showComplete(data) {
         body: JSON.stringify({ session_id: sessionId }),
       }).catch(() => {});
     }
-    const page = isV2Architecture ? 'eval_v2.html' : 'eval.html';
+    const page = isV2Architecture ? 'eval_v2_zh.html' : 'eval.html';
     window.location.href = `/${page}?session=${sessionId}`;
   };
   screen.appendChild(evalBtn);
 
-  // Feed button — v1 only. Removed for v2 (no-LLM-profile architecture);
-  // its whole rewrite-quality story lives in the eval feature there instead.
   if (!isV2Architecture) {
     const feedBtn = document.createElement('button');
     feedBtn.className = 'download-btn dynamic-action-btn';
     feedBtn.style.cssText = 'margin-top:8px; background:linear-gradient(135deg,#7c3aed,#4f46e5);';
-    feedBtn.textContent = '→ View Your Feed';
+    feedBtn.textContent = '→ 查看你的信息流';
     feedBtn.onclick = () => { window.location.href = `/feed.html?session=${sessionId}`; };
     screen.appendChild(feedBtn);
   }
 }
 
 function resetSession() {
-  if (!confirm('Reset this session and start over from topic picking? Current progress will be lost.')) return;
+  if (!confirm('重置此会话并从主题选择重新开始？当前进度将丢失。')) return;
 
-  // Clear all client-side session state
   sessionId = null;
   currentPosts = [];
   selectedIds.clear();
@@ -673,14 +667,13 @@ function resetSession() {
   lastConfidence = null;
   lastStylePrefs = null;
 
-  // Put every screen back to its initial state
   document.getElementById('complete-screen').classList.add('hidden');
   document.getElementById('complete-screen').querySelectorAll('.dynamic-action-btn').forEach(el => el.remove());
   document.getElementById('post-grid').classList.remove('hidden');
   document.getElementById('post-grid').innerHTML = '';
   document.getElementById('confirm-btn').classList.remove('hidden');
   document.getElementById('confirm-btn').classList.remove('active');
-  document.getElementById('confirm-btn').textContent = 'Confirm Selection →';
+  document.getElementById('confirm-btn').textContent = '确认选择 →';
   document.getElementById('confirm-btn').onclick = confirmChoices;
   document.getElementById('instruction').classList.remove('hidden');
   document.getElementById('topic-grid').classList.add('hidden');

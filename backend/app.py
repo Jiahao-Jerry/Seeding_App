@@ -11,9 +11,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from openai import AuthenticationError
 from pydantic import BaseModel
 
 import sys
@@ -39,20 +41,33 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(AuthenticationError)
+async def openai_auth_error_handler(request: Request, exc: AuthenticationError):
+    # Without this, an invalid/expired OPENAI_API_KEY_UMICH_DYIMOD surfaces
+    # as a raw, unhandled "Internal Server Error" with a stack trace instead
+    # of a clear message -- this catches it app-wide, regardless of which
+    # endpoint's LLM call triggered it.
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "The AI rewriting service is unavailable right now — the API key is invalid or expired. Contact the app admin."},
+    )
+
+
 @app.on_event("startup")
-async def _warmup_qwen():
-    """Load SAE weights and Qwen into memory at startup so the first
-    SAE Verification click responds instantly instead of timing out."""
-    import asyncio, threading
+async def _warmup_style_verifier():
+    """Load the fine-tuned classifier and force the BERTScore model to load
+    at startup, so the first rewrite's verification gate responds quickly
+    instead of paying model-load cost on a live request."""
+    import threading
     def _load():
         try:
-            from backend.sae_verify import load_sae, load_qwen
-            load_sae()
-            print("[startup] SAE weights loaded.")
-            load_qwen()
-            print("[startup] Qwen2.5-7B ready.")
+            from backend.verify_classifier import load_classifier, verify_rewrite
+            load_classifier()
+            print("[startup] Style classifier loaded.")
+            verify_rewrite("warm up text one", "warm up text two", ["tone"])
+            print("[startup] BERTScore model ready.")
         except Exception as e:
-            print(f"[startup] Qwen warm-up failed: {e}")
+            print(f"[startup] Style verifier warm-up failed: {e}")
     threading.Thread(target=_load, daemon=True).start()
 
 
@@ -63,23 +78,13 @@ _corpus: pd.DataFrame | None = None
 _pairs: pd.DataFrame | None = None
 _cross_pairs: pd.DataFrame | None = None
 _embeddings: np.ndarray | None = None
-_sae_acts: np.ndarray | None = None        # (9500, 128) SAE feature activations
-_sae_pid_to_row: dict | None = None        # post_id str → row index in _sae_acts
-_sae_ridge: dict | None = None             # {axis: (coef, intercept)} for profile projection
 _word_counts: dict[str, int] = {}          # post_id str → word count
 _sessions: dict[str, SessionState] = {}
 _shown_posts_cache: dict[str, list[dict]] = {}
-_sae_verify_cache: dict[str, dict] = {}  # key: "{post_id}:{hash(rewritten_text)}"
-
-
-def _sae_cache_key(post_id: str | None, rewritten_text: str) -> str | None:
-    if post_id is None:
-        return None
-    return f"{post_id}:{hash(rewritten_text)}"
 
 
 def get_data():
-    global _corpus, _pairs, _cross_pairs, _embeddings, _sae_acts, _sae_pid_to_row, _sae_ridge, _word_counts
+    global _corpus, _pairs, _cross_pairs, _embeddings, _word_counts
     if _corpus is None:
         corpus_path = Path(__file__).parent.parent / ANNOTATED_CORPUS_FILE
         pairs_path = Path(__file__).parent.parent / PAIRS_FILE
@@ -93,41 +98,7 @@ def get_data():
         _embeddings = np.load(emb_path) if emb_path.exists() else None
         _word_counts = dict(zip(_corpus["post_id"], _corpus["text"].str.split().str.len()))
 
-        # SAE: feature activations (qwen24_knn_k25_l0004, 128 features)
-        # Row order matches annotated_posts.parquet (same 9500-post corpus)
-        sae_acts_path = DATA_DIR / "sae_activations.npy"
-        ridge_path = DATA_DIR / "sae_ridge_models.npz"
-        if sae_acts_path.exists() and _corpus is not None:
-            _sae_acts = np.load(sae_acts_path).astype(np.float32)
-            _sae_pid_to_row = {str(p): i for i, p in enumerate(_corpus["post_id"].astype(str))}
-        if ridge_path.exists():
-            npz = np.load(ridge_path)
-            axes = ["reading_level", "concreteness", "narrativity", "hedging",
-                    "tone", "warmth", "self_disclosure", "casualness", "humor"]
-            _sae_ridge = {ax: (npz[f"{ax}_coef"], float(npz[f"{ax}_intercept"][0])) for ax in axes}
-
     return _corpus, _pairs, _cross_pairs, _embeddings
-
-
-def compute_sae_prefs(liked_post_ids: list[str]) -> dict:
-    """
-    Compute style preferences from SAE fingerprint of liked posts.
-
-    Mean the SAE activations of liked posts (128-dim), then project each axis
-    through the pre-fitted Ridge weights to get a preference score in [0, 1].
-    Returns {} if SAE data is not loaded or no liked posts have SAE rows.
-    """
-    if _sae_acts is None or _sae_pid_to_row is None or _sae_ridge is None:
-        return {}
-    rows = [_sae_pid_to_row[pid] for pid in liked_post_ids if pid in _sae_pid_to_row]
-    if not rows:
-        return {}
-    mean_act = _sae_acts[rows].mean(axis=0)  # (128,)
-    prefs = {}
-    for ax, (coef, intercept) in _sae_ridge.items():
-        score = float(np.dot(mean_act, coef) + intercept)
-        prefs[ax] = round(float(np.clip(score, 0.0, 1.0)), 4)
-    return prefs
 
 
 # ── API Models ───────────────────────────────────────────────────
@@ -160,7 +131,8 @@ class ProfileResponse(BaseModel):
     liked_post_ids: list[str]
     engagement_centroid: list[float]
     n_interactions: int
-    sae_prefs: dict = {}
+    style_prefs: dict = {}
+    all_style_prefs: dict = {}  # unfiltered preferred_value for every axis -- debug/dev display only
 
 
 # ── Helpers ──────────────────────────────────────────────────────
@@ -213,7 +185,7 @@ def get_shelf_posts(corpus: pd.DataFrame, action: dict, state: SessionState) -> 
     return [post_to_api_dict(row) for _, row in candidates.iterrows()]
 
 
-PAIR_POOL_SIZE = 20   # sample from top-N scoring fresh pairs to avoid showing the same posts
+PAIR_POOL_SIZE = 5   # sample from top-N scoring fresh pairs to avoid showing the same posts
 MAX_LENGTH_RATIO = 2.0  # skip pairs where one post is >2x longer than the other
 
 
@@ -222,30 +194,30 @@ def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
                    cross_pairs: pd.DataFrame = None) -> list[dict]:
     """
     Select a contrastive pair (Mode B).
-    Strategy: use cross-topic pairs first (obvious style differences),
-    fall back to within-topic pairs for refinement.
+    Strategy: action["pair_source"] ("cross" or "same", set by
+    decide_next_action() -- tied to the explore/exploit round phase) decides
+    which table gets tried FIRST; the other table is the fallback if the
+    assigned one has no fresh candidates left for this axis. Both tiers
+    require BOTH posts to be entirely unseen this session (fresh) -- no
+    "combo is new but a post repeats" tier; if neither table has a fresh
+    pair left, fall back to two random unseen posts with no axis-targeting
+    at all. Defaults to cross-topic-first if pair_source is absent (e.g.
+    the "all axes confident" fallback action on an older cached action dict).
     """
     target_axis = action["target_axis"]
+    pair_source = action.get("pair_source", "cross")
 
     # Exclude posts already seen in any mode
     seen_posts = set()
-    used_pairs = set()
     for h in state.history:
-        shown = h.get("shown", [])
-        for pid in shown:
+        for pid in h.get("shown", []):
             seen_posts.add(str(pid))
-        if len(shown) == 2:
-            used_pairs.add(tuple(sorted(shown)))
 
     def pair_is_fresh(high_id, low_id):
-        key = tuple(sorted([high_id, low_id]))
-        return key not in used_pairs and high_id not in seen_posts and low_id not in seen_posts
+        return high_id not in seen_posts and low_id not in seen_posts
 
-    def pair_is_acceptable(high_id, low_id):
-        return tuple(sorted([high_id, low_id])) not in used_pairs
-
-    def pick_from_pool(df_sorted, check_fn) -> object | None:
-        """Collect up to PAIR_POOL_SIZE passing pairs, then pick one at random.
+    def pick_from_pool(df_sorted) -> object | None:
+        """Collect up to PAIR_POOL_SIZE fresh pairs, then pick one at random.
         Skips pairs where one post is >MAX_LENGTH_RATIO times longer than the other."""
         pool = []
         for _, row in df_sorted.iterrows():
@@ -254,33 +226,31 @@ def get_pair_posts(corpus: pd.DataFrame, pairs: pd.DataFrame,
             wl = _word_counts.get(l, 0)
             if wh > 0 and wl > 0 and max(wh, wl) / min(wh, wl) > MAX_LENGTH_RATIO:
                 continue
-            if check_fn(h, l):
+            if pair_is_fresh(h, l):
                 pool.append(row)
                 if len(pool) >= PAIR_POOL_SIZE:
                     break
         return random.choice(pool) if pool else None
 
-    best_pair = None
+    def try_cross():
+        if cross_pairs is not None and not cross_pairs.empty:
+            ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
+            return pick_from_pool(ct_available)
+        return None
 
-    # Priority 1: cross-topic pairs, both posts fresh
-    if cross_pairs is not None and not cross_pairs.empty:
-        ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        best_pair = pick_from_pool(ct_available, pair_is_fresh)
+    def try_same():
+        if not pairs.empty:
+            wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
+            return pick_from_pool(wt_available)
+        return None
 
-    # Priority 2: within-topic pairs, both posts fresh
-    if best_pair is None and not pairs.empty:
-        wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        best_pair = pick_from_pool(wt_available, pair_is_fresh)
-
-    # Priority 3: cross-topic pairs, at least the combo is new (one post may repeat)
-    if best_pair is None and cross_pairs is not None and not cross_pairs.empty:
-        ct_available = cross_pairs[cross_pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        best_pair = pick_from_pool(ct_available, pair_is_acceptable)
-
-    # Priority 4: within-topic pairs, at least the combo is new
-    if best_pair is None and not pairs.empty:
-        wt_available = pairs[pairs["target_axis"] == target_axis].sort_values("score", ascending=False)
-        best_pair = pick_from_pool(wt_available, pair_is_acceptable)
+    # Try the phase-assigned source first, fall back to the other table if
+    # it has nothing fresh left for this axis, before giving up on
+    # axis-targeting entirely.
+    first, second = (try_cross, try_same) if pair_source == "cross" else (try_same, try_cross)
+    best_pair = first()
+    if best_pair is None:
+        best_pair = second()
 
     # Final fallback: random unseen posts from corpus
     if best_pair is None:
@@ -339,13 +309,11 @@ async def interact(req: InteractionRequest):
     shown_mask = corpus["post_id"].isin(req.shown_post_ids)
     shown_posts = [post_to_api_dict(row) for _, row in corpus[shown_mask].iterrows()]
 
-    # Update profile via LLM (pass the action the user just responded to)
+    # Update profile via LLM (topics/prose) and the Bradley-Terry style model
+    # (state.style_prefs, set inside update_profile()) from the same interaction
     valid_topics = set(corpus["topic_name"].unique())
     state = await update_profile(state, shown_posts, req.chosen_post_ids,
                                  action=state.last_action, valid_topics=valid_topics)
-
-    # Update SAE-based style preferences from liked posts so far
-    state.sae_prefs = compute_sae_prefs(state.liked_post_ids)
 
     if state.is_complete:
         # Save profile
@@ -409,7 +377,8 @@ async def get_profile(session_id: str):
         liked_post_ids=state.liked_post_ids,
         engagement_centroid=centroid,
         n_interactions=state.step_count,
-        sae_prefs=state.sae_prefs,
+        style_prefs=state.style_prefs,
+        all_style_prefs=state.all_style_prefs,
     )
 
 
@@ -429,7 +398,7 @@ async def _save_profile(state: SessionState, corpus: pd.DataFrame, embeddings):
         "topics_prose": state.profile["topics_prose"],
         "style_prose": state.profile["style_prose"],
         "confidence": state.confidence,
-        "sae_prefs": state.sae_prefs,
+        "style_prefs": state.style_prefs,
         "liked_post_ids": state.liked_post_ids,
         "engagement_centroid": centroid,
         "n_interactions": state.step_count,
@@ -486,7 +455,7 @@ async def transform_endpoint(req: TransformRequest):
         state = _sessions.get(req.session_id)
         if not state:
             raise HTTPException(404, "Session not found")
-        user_prefs = state.confidence.get("axes", {})
+        user_prefs = state.style_prefs
     elif req.user_prefs:
         user_prefs = req.user_prefs
     else:
@@ -525,47 +494,7 @@ class FeedItem(BaseModel):
     changes_made: str
     deltas: dict
     used_original: bool
-
-
-async def _precompute_sae_for_feed(items: list[dict]):
-    """
-    After the feed is returned, run SAE verification for every rewritten post
-    and cache the result so the per-post toggle responds instantly.
-    Waits for Qwen to finish loading (up to 3 min), then runs sequentially
-    to avoid MPS contention.
-    """
-    import asyncio
-    import backend.sae_verify as _sae_mod
-    from backend.sae_verify import verify_rewrite as _sae_verify, load_sae
-
-    # Wait for the startup warmup thread to finish loading Qwen
-    for _ in range(36):
-        if _sae_mod._qwen_model is not None:
-            break
-        await asyncio.sleep(5)
-    else:
-        print("[sae precompute] Qwen not ready after 3 min — skipping precompute")
-        return
-
-    load_sae()
-    loop = asyncio.get_event_loop()
-    for item in items:
-        if item["used_original"] or not item.get("deltas"):
-            continue
-        key = _sae_cache_key(item["post_id"], item["transformed_text"])
-        if key is None or key in _sae_verify_cache:
-            continue
-        target_axes = list(item["deltas"].keys())
-        try:
-            result = await loop.run_in_executor(
-                None,
-                lambda orig=item["original_text"], rw=item["transformed_text"],
-                       axes=target_axes, pid=item["post_id"]: _sae_verify(orig, rw, axes, pid),
-            )
-            _sae_verify_cache[key] = result
-            print(f"[sae precompute] cached {item['post_id']} verdict={result['verdict']}")
-        except Exception as e:
-            print(f"[sae precompute] failed for {item['post_id']}: {e}")
+    style_verification: dict | None = None
 
 
 @app.post("/api/feed")
@@ -578,7 +507,7 @@ async def get_feed(req: FeedRequest, background_tasks: BackgroundTasks):
     if not state:
         raise HTTPException(404, "Session not found")
 
-    user_prefs = state.confidence.get("axes", {})
+    user_prefs = state.style_prefs
     if not user_prefs:
         raise HTTPException(400, "Profile not ready — complete seeding first")
 
@@ -609,8 +538,8 @@ async def get_feed(req: FeedRequest, background_tasks: BackgroundTasks):
         post_axes = json.loads(row["axes_json"]) if pd.notna(row.get("axes_json")) else {}
         result = await transform_post(
             row["text"], post_axes, user_prefs,
-            verify=False,    # skip LLM substance check for feed speed
-            sae_gate=False,  # skip SAE gate; user can verify per-post via toggle
+            verify=False,     # skip LLM substance check for feed speed
+            style_gate=True,  # classifier + BERTScore gate -- fast enough to run inline now
             orig_post_id=str(row["post_id"]),
         )
         return {
@@ -621,11 +550,11 @@ async def get_feed(req: FeedRequest, background_tasks: BackgroundTasks):
             "changes_made": result["changes_made"],
             "deltas": result["deltas"],
             "used_original": result["used_original"],
+            "style_verification": result.get("style_verification"),
         }
 
     feed_items = await _asyncio.gather(*[_transform_row(row) for _, row in rows])
 
-    background_tasks.add_task(_precompute_sae_for_feed, feed_items)
     return {"session_id": req.session_id, "items": feed_items}
 
 
@@ -699,6 +628,7 @@ async def eval_start(req: EvalStartRequest):
             result = await transform_post(
                 left_text, post_axes, user_prefs,
                 verify=settings.verify_transform,
+                style_gate=False,  # skip style gate for eval trials — keep trial generation fast
                 max_axes=settings.max_axes,
                 orig_post_id=str(left_row["post_id"]),
             )
@@ -709,6 +639,7 @@ async def eval_start(req: EvalStartRequest):
             result = await transform_post(
                 right_text, post_axes, user_prefs,
                 verify=settings.verify_transform,
+                style_gate=False,  # skip style gate for eval trials — keep trial generation fast
                 max_axes=settings.max_axes,
                 orig_post_id=str(right_row["post_id"]),
             )
@@ -833,72 +764,6 @@ async def eval_results(session_id: str):
     }
 
     return {"stats": stats, "responses": responses}
-
-
-# ── SAE rewrite verification ──────────────────────────────────────
-
-class SAEVerifyRequest(BaseModel):
-    original_text: str
-    rewritten_text: str
-    target_axes: list[str]
-    orig_post_id: str | None = None
-
-
-@app.post("/api/sae-verify")
-async def sae_verify(req: SAEVerifyRequest):
-    """
-    SAE-based rewrite verification.
-    Returns cached result instantly if the feed already pre-computed it.
-    Otherwise runs Qwen on demand.
-    """
-    import asyncio
-    from backend.sae_verify import verify_rewrite, load_sae
-
-    cache_key = _sae_cache_key(req.orig_post_id, req.rewritten_text)
-
-    # Fast path: background precompute already finished
-    if cache_key and cache_key in _sae_verify_cache:
-        return _sae_verify_cache[cache_key]
-
-    load_sae()   # fast — just weights, no Qwen yet
-
-    def _run():
-        # Re-check after acquiring the Qwen lock — background may have finished
-        # while we were waiting in the thread queue
-        if cache_key and cache_key in _sae_verify_cache:
-            return _sae_verify_cache[cache_key]
-        result = verify_rewrite(
-            req.original_text,
-            req.rewritten_text,
-            req.target_axes,
-            req.orig_post_id,
-        )
-        if cache_key:
-            _sae_verify_cache[cache_key] = result
-        return result
-
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, _run)
-
-
-@app.get("/api/sae-verify/status")
-async def sae_verify_status():
-    """Check whether Qwen is loaded and SAE weights are ready."""
-    from backend.sae_verify import _qwen_model, _sae
-    return {
-        "sae_loaded": _sae is not None,
-        "qwen_loaded": _qwen_model is not None,
-        "device": str(_get_device()) if _sae is not None else None,
-    }
-
-
-def _get_device():
-    import torch
-    if torch.backends.mps.is_available():
-        return "mps"
-    if torch.cuda.is_available():
-        return "cuda"
-    return "cpu"
 
 
 # ── Admin settings API ────────────────────────────────────────────

@@ -63,87 +63,14 @@ body {
   font-style: italic;
 }
 
-/* ── SAE analysis panel ─────────────────────────────────────── */
-.sae-toggle {
-  margin-top: 12px; font-size: 0.75rem; color: #6b7280;
-  cursor: pointer; user-select: none; display: inline-flex;
-  align-items: center; gap: 6px;
-}
-.sae-toggle:hover { color: #a78bfa; }
-.sae-panel {
-  display: none; margin-top: 12px;
-  background: #12141f; border: 1px solid #2a2d3e;
-  border-radius: 10px; padding: 16px; font-size: 0.8rem;
-}
-.sae-panel.open { display: block; }
-.sae-section-title {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.06em; color: #4b5563; margin: 14px 0 6px;
-}
-.sae-section-title:first-child { margin-top: 0; }
-
-/* Verdict badge */
+/* ── Style verification badge (classifier + BERTScore, computed inline) ── */
 .verdict {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 12px; border-radius: 20px; font-weight: 700;
-  font-size: 0.75rem; letter-spacing: 0.04em;
+  font-size: 0.75rem; letter-spacing: 0.04em; margin-top: 10px;
 }
 .verdict.clean { background: #052e16; color: #4ade80; border: 1px solid #166534; }
 .verdict.leaked { background: #1c1403; color: #fbbf24; border: 1px solid #92400e; }
-.verdict.loading { background: #1e2130; color: #6b7280; border: 1px solid #374151; }
-
-/* Axis shift bars */
-.axis-bars { display: flex; flex-direction: column; gap: 5px; }
-.axis-row {
-  display: grid; grid-template-columns: 130px 1fr 52px;
-  align-items: center; gap: 8px;
-}
-.axis-name { font-size: 0.75rem; color: #9ca3af; text-align: right; }
-.axis-name.target { color: #a78bfa; font-weight: 600; }
-.bar-track {
-  height: 8px; background: #1e2130; border-radius: 4px;
-  position: relative; overflow: visible;
-}
-.bar-fill {
-  position: absolute; top: 0; height: 100%; border-radius: 4px;
-  transition: width 0.4s ease;
-}
-.bar-fill.pos.target { background: #7c3aed; }
-.bar-fill.neg.target { background: #7c3aed; right: 50%; }
-.bar-fill.pos.other  { background: #374151; }
-.bar-fill.neg.other  { background: #374151; right: 50%; }
-.bar-center { position: absolute; left: 50%; top: -1px; bottom: -1px;
-              width: 1px; background: #374151; }
-.axis-val { font-size: 0.72rem; color: #6b7280; font-variant-numeric: tabular-nums; }
-.axis-val.target { color: #c4b5fd; }
-
-/* Target quality rows */
-.target-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-.target-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 10px; border-radius: 8px; font-size: 0.78rem;
-}
-.target-row.hit  { background: #052e16; border: 1px solid #166534; }
-.target-row.miss { background: #1c1403; border: 1px solid #92400e; }
-.target-row.weak { background: #1a1a2e; border: 1px solid #374151; }
-.target-icon  { font-size: 0.9rem; width: 16px; flex-shrink: 0; }
-.target-label { color: #c4b5fd; font-weight: 600; min-width: 110px; }
-.target-desc  { color: #9ca3af; flex: 1; }
-.target-val   { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-.target-row.hit  .target-val { color: #4ade80; }
-.target-row.miss .target-val { color: #fbbf24; }
-.target-row.weak .target-val { color: #6b7280; }
-
-/* Leakage rows */
-.leak-rows { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-.leak-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 10px; border-radius: 6px; font-size: 0.76rem;
-  background: #1c140380; border: 1px solid #92400e40; color: #d1a45a;
-}
-.leak-label { min-width: 110px; font-weight: 500; }
-.leak-val   { margin-left: auto; font-variant-numeric: tabular-nums; }
-.no-leak    { color: #374151; font-size: 0.76rem; font-style: italic; padding: 4px 0; }
 
 .loading { text-align: center; padding: 60px; color: #6b7280; }
 .btn {
@@ -160,6 +87,13 @@ body {
   color: #9ca3af; line-height: 1.6;
 }
 .profile-summary strong { color: #c4b5fd; }
+
+.reset-btn {
+  font-size: 0.75rem; color: #9ca3af; background: #1a1d2e; border: 1px solid #2a2d3e;
+  border-radius: 6px; padding: 4px 12px; cursor: pointer; transition: all 0.15s;
+  display: block; margin: 10px auto 0;
+}
+.reset-btn:hover { border-color: #ef4444; color: #ef4444; }
 </style>
 </head>
 <body>
@@ -167,6 +101,7 @@ body {
   <div class="header">
     <h1>Your Personalized Feed</h1>
     <p>Posts adapted to your delivery preferences — same content, your style.</p>
+    <button class="reset-btn" onclick="resetSession()">↺ Reset Session</button>
   </div>
 
   <div class="profile-summary" id="profile-summary"></div>
@@ -229,7 +164,7 @@ function buildFeedItem(item) {
   const el = document.createElement('div');
   el.className = 'feed-item';
 
-  if (item.used_original) {
+  if (item.used_original && !item.deltas || item.used_original && Object.keys(item.deltas).length === 0) {
     el.innerHTML = `
       <span class="topic-tag">${item.topic_name}</span>
       <div class="comparison">
@@ -241,12 +176,40 @@ function buildFeedItem(item) {
     return el;
   }
 
+  // v2 architecture: a rewrite was attempted (possibly multiple times) but
+  // every attempt was rejected by the classifier/content gate.
+  if (item.used_original) {
+    const attemptsHtml = (item.attempts_log || []).map(a =>
+      `<span class="delta-chip">attempt ${a.attempt}: ${a.verdict}</span>`
+    ).join('');
+    el.innerHTML = `
+      <span class="topic-tag">${item.topic_name}</span>
+      <div class="comparison">
+        <div class="panel original" style="grid-column: 1/-1;">
+          <span class="panel-label">Rewrite rejected after ${item.attempts || 0} attempt(s) — showing original</span>
+          ${escapeHtml(item.original_text)}
+        </div>
+      </div>
+      <div class="changes">${item.changes_made}</div>
+      <div class="deltas">${attemptsHtml}</div>`;
+    return el;
+  }
+
   const targetAxes = Object.keys(item.deltas);
   const deltasHtml = targetAxes.map(ax =>
     `<span class="delta-chip">${ax.replace(/_/g,' ')}: ${item.deltas[ax].direction}</span>`
   ).join('');
 
-  const saeId = `sae-${item.post_id}`;
+  const sv = item.style_verification;
+  let verdictHtml = '';
+  if (sv) {
+    const cls = sv.verdict === 'clean' ? 'clean' : 'leaked';
+    const icon = sv.verdict === 'clean' ? '✓' : '⚠';
+    const text = sv.verdict === 'clean' ? 'Style verified' : 'Possible axis leak';
+    const attemptsNote = item.attempts > 1 ? ` · passed on attempt ${item.attempts}` : '';
+    verdictHtml = `<span class="verdict ${cls}">${icon} ${text} · content similarity ${sv.bge_cosine.toFixed(2)}${attemptsNote}</span>`;
+  }
+
   el.innerHTML = `
     <span class="topic-tag">${item.topic_name}</span>
     <div class="comparison">
@@ -261,131 +224,9 @@ function buildFeedItem(item) {
     </div>
     <div class="changes">${item.changes_made}</div>
     <div class="deltas">${deltasHtml}</div>
-    <div class="sae-toggle" id="toggle-${saeId}">▶ SAE Verification</div>
-    <div class="sae-panel" id="${saeId}">
-      <span class="verdict loading">⏳ Waiting for Qwen2.5-7B…</span>
-    </div>`;
-
-  // Use closure to avoid JSON-in-onclick quoting issues
-  el.querySelector(`#toggle-${saeId}`).addEventListener('click', function() {
-    toggleSAE(saeId, this, item);
-  });
+    ${verdictHtml}`;
 
   return el;
-}
-
-function toggleSAE(panelId, toggleEl, item) {
-  const panel = document.getElementById(panelId);
-  if (panel.classList.contains('open')) {
-    panel.classList.remove('open');
-    toggleEl.textContent = '▶ SAE Verification';
-    return;
-  }
-  panel.classList.add('open');
-  toggleEl.textContent = '▼ SAE Verification';
-
-  // Only fetch if not already done
-  if (panel.dataset.loaded) return;
-  panel.dataset.loaded = '1';
-
-  panel.innerHTML = `<span class="verdict loading">⏳ Running SAE analysis… (first call loads Qwen ~30s)</span>`;
-
-  const targetAxes = Object.keys(item.deltas);
-  fetch('/api/sae-verify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      original_text: item.original_text,
-      rewritten_text: item.transformed_text,
-      target_axes: targetAxes,
-      orig_post_id: item.post_id,
-    }),
-  })
-  .then(r => r.ok ? r.json() : r.text().then(t => Promise.reject(t)))
-  .then(data => renderSAEPanel(panel, data, targetAxes, item.deltas))
-  .catch(err => {
-    panel.dataset.loaded = '';  // allow retry
-    panel.innerHTML = `<span style="color:#f87171">SAE verify failed: ${err}</span>`;
-  });
-}
-
-const AXIS_NAMES = ["reading_level","concreteness","narrativity","hedging",
-                    "tone","warmth","self_disclosure","casualness","humor"];
-
-function renderSAEPanel(panel, data, targetAxes, deltas) {
-  const targetSet = new Set(targetAxes);
-  const shifts = data.axis_shifts;
-  const maxAbs = Math.max(...Object.values(shifts).map(Math.abs), 0.01);
-
-  // ── Verdict ───────────────────────────────────────────
-  const verdictClass = data.verdict === 'clean' ? 'clean' : 'leaked';
-  const verdictIcon  = data.verdict === 'clean' ? '✓' : '⚠';
-  const verdictText  = data.verdict === 'clean' ? 'Good rewrite' : 'Axis leakage detected';
-
-  // ── Target axis quality ───────────────────────────────
-  const THRESHOLD = 0.03;
-  const targetRowsHtml = targetAxes.map(ax => {
-    const shift = shifts[ax] || 0;
-    const intended = deltas[ax]?.direction;  // "increase" or "decrease"
-    const sign = shift >= 0 ? '+' : '';
-    const movedRight = intended === 'increase' ? shift > THRESHOLD
-                     : intended === 'decrease' ? shift < -THRESHOLD
-                     : Math.abs(shift) > THRESHOLD;
-    const strong = Math.abs(shift) > THRESHOLD;
-    const cls  = movedRight ? 'hit' : strong ? 'miss' : 'weak';
-    const icon = movedRight ? '✓' : strong ? '✗' : '~';
-    const desc = intended
-      ? `targeted ${intended}` + (movedRight ? ', delivered' : ', did not deliver')
-      : 'no expected direction';
-    return `<div class="target-row ${cls}">
-      <span class="target-icon">${icon}</span>
-      <span class="target-label">${ax.replace(/_/g,' ')}</span>
-      <span class="target-desc">${desc}</span>
-      <span class="target-val">${sign}${shift.toFixed(3)}</span>
-    </div>`;
-  }).join('');
-
-  // ── Unintended shifts ─────────────────────────────────
-  const LEAK_THRESHOLD = 0.08;
-  const leaks = AXIS_NAMES.filter(ax => !targetSet.has(ax) && Math.abs(shifts[ax] || 0) > LEAK_THRESHOLD);
-  const leakHtml = leaks.length === 0
-    ? `<div class="no-leak">No significant unintended shifts</div>`
-    : leaks.map(ax => {
-        const v = shifts[ax];
-        return `<div class="leak-row">
-          <span class="leak-label">${ax.replace(/_/g,' ')}</span>
-          <span class="leak-val">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
-        </div>`;
-      }).join('');
-
-  // ── Axis shift bars (all axes) ────────────────────────
-  const barsHtml = AXIS_NAMES.map(ax => {
-    const v = shifts[ax] || 0;
-    const isTarget = targetSet.has(ax);
-    const pct = Math.abs(v) / maxAbs * 48;
-    const cls = `${v >= 0 ? 'pos' : 'neg'} ${isTarget ? 'target' : 'other'}`;
-    const barStyle = v >= 0 ? `left:50%; width:${pct}%` : `right:50%; width:${pct}%`;
-    return `<div class="axis-row">
-      <span class="axis-name ${isTarget ? 'target' : ''}">${ax.replace(/_/g,' ')}</span>
-      <div class="bar-track">
-        <div class="bar-center"></div>
-        <div class="bar-fill ${cls}" style="${barStyle}"></div>
-      </div>
-      <span class="axis-val ${isTarget ? 'target' : ''}">${v >= 0 ? '+' : ''}${v.toFixed(3)}</span>
-    </div>`;
-  }).join('');
-
-  panel.innerHTML = `
-    <span class="verdict ${verdictClass}">${verdictIcon} ${verdictText}</span>
-
-    <div class="sae-section-title">Target axes</div>
-    <div class="target-rows">${targetRowsHtml}</div>
-
-    <div class="sae-section-title">Unintended shifts</div>
-    ${leakHtml}
-
-    <div class="sae-section-title">All axes — target in purple</div>
-    <div class="axis-bars">${barsHtml}</div>`;
 }
 
 async function loadMore() {
@@ -408,6 +249,11 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function resetSession() {
+  if (!confirm('Reset this session and start over from topic picking? Current progress will be lost.')) return;
+  window.location.href = '/';
 }
 </script>
 </body>
